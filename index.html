@@ -411,7 +411,7 @@
 <body>
 
 <div class="sync-badge">
-  <div class="sync-dot"></div> <span id="syncText">Realtime Cloud Connected</span>
+  <div class="sync-dot"></div> <span>Realtime Cross-Tab Active</span>
 </div>
 
 <div class="wa-bg" aria-hidden="true">
@@ -457,8 +457,8 @@
 <div class="page" id="adminPage">
   <div class="admin-wrap">
     <button class="back-btn" onclick="exitAdmin()">← ออกจากระบบหลังบ้าน</button>
-    <div class="admin-title">🔒 ADMIN PANEL (REALTIME DATABASE)</div>
-    <div class="admin-note">เพิ่ม/แก้ไข/ลบ ข้อมูลจะบันทึกทันทีและซิงค์แสดงผลสดแบบ Realtime ทุกหน้าจอ</div>
+    <div class="admin-title">🔒 ADMIN PANEL (LIVE REALTIME)</div>
+    <div class="admin-note">เพิ่ม/แก้ไข/ลบ ข้อมูลจะถูกซิงค์ไปยังหน้าจออื่นและบันทึกลงเครื่องทันที</div>
 
     <!-- Add Member Box -->
     <div class="admin-box-title">👥 เพิ่มสมาชิกใหม่</div>
@@ -496,39 +496,55 @@
   </div>
 </div>
 
-<!-- Firebase Realtime SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
   const DEFAULT_IMAGE = "logo.png";
   const DISCORD_PREFIX = "https://discord.com/users/";
-  
-  // Realtime Cloud Database Configuration (Built-in Active Cloud Engine)
-  const firebaseConfig = {
-    databaseURL: "https://whydoyouask-live-default-rtdb.asia-southeast1.firebasedatabase.app"
-  };
-  
-  // Initialize Firebase Connection
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database().ref('members');
+  const STORAGE_KEY = 'WHY_DO_YOU_ASK_MEMBERS_DATA';
+
+  // Broadcast Channel for Realtime Cross-Tab/Window Syncing
+  const syncChannel = new BroadcastChannel('wda_realtime_sync');
 
   let membersData = [];
 
-  // Listening Realtime Changes (Triggered Instantly on Add/Edit/Delete)
-  db.on('value', (snapshot) => {
-    const val = snapshot.val();
-    membersData = [];
-    if (val) {
-      Object.keys(val).forEach(key => {
-        membersData.push({ id: key, ...val[key] });
-      });
+  // Load Data safely from LocalStorage
+  function loadLocalData() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      membersData = saved ? JSON.parse(saved) : [];
+    } catch(e) {
+      membersData = [];
     }
+  }
+
+  // Save and Broadcast to all other opened windows instantly
+  function saveAndBroadcastData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(membersData));
+    syncChannel.postMessage({ type: 'UPDATE_DATA', data: membersData });
+    refreshViews();
+  }
+
+  // Receive live updates from other windows
+  syncChannel.onmessage = (event) => {
+    if (event.data && event.data.type === 'UPDATE_DATA') {
+      membersData = event.data.data;
+      refreshViews();
+    }
+  };
+
+  // Sync when localStorage changes externally
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY) {
+      loadLocalData();
+      refreshViews();
+    }
+  });
+
+  function refreshViews() {
     renderPublicPage();
     if (document.getElementById('adminPage').classList.contains('active')) {
       renderAdminTable();
     }
-  });
+  }
 
   // ===== LOGO CLICK -> ADMIN =====
   let logoClickCount = 0, logoClickTimer = null;
@@ -598,64 +614,68 @@
   // ===== ADMIN FUNCTIONS =====
   function renderAdminTable() {
     const tbody = document.getElementById('adminTableBody');
-    tbody.innerHTML = membersData.map(m => `
+    tbody.innerHTML = membersData.map((m, index) => `
       <tr>
         <td>
           <div style="display:flex; align-items:center; gap:6px;">
             <img src="${escapeHTML(m.img || DEFAULT_IMAGE)}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" onerror="this.src='${DEFAULT_IMAGE}'">
-            <input type="text" value="${escapeHTML(m.img || '')}" placeholder="URL รูปโปรไฟล์" onchange="updateMemberData('${m.id}', 'img', this.value)">
+            <input type="text" value="${escapeHTML(m.img || '')}" placeholder="URL รูปโปรไฟล์" onchange="updateMemberData(${index}, 'img', this.value)">
           </div>
         </td>
         <td>
-          <input type="text" value="${escapeHTML(m.name)}" onchange="updateMemberData('${m.id}', 'name', this.value)">
+          <input type="text" value="${escapeHTML(m.name)}" onchange="updateMemberData(${index}, 'name', this.value)">
         </td>
         <td>
-          <select onchange="updateMemberData('${m.id}', 'role', this.value)">
+          <select onchange="updateMemberData(${index}, 'role', this.value)">
             <option value="owner" ${m.role === 'owner' ? 'selected' : ''}>Owner</option>
             <option value="leader" ${m.role === 'leader' ? 'selected' : ''}>Leader</option>
             <option value="member" ${m.role === 'member' ? 'selected' : ''}>Member</option>
           </select>
         </td>
         <td>
-          <input type="text" value="${escapeHTML(m.imgLink || '')}" placeholder="วางลิงก์รูปภาพ" onchange="updateMemberData('${m.id}', 'imgLink', this.value)">
+          <input type="text" value="${escapeHTML(m.imgLink || '')}" placeholder="วางลิงก์รูปภาพ" onchange="updateMemberData(${index}, 'imgLink', this.value)">
         </td>
         <td>
           <div class="fixed-input-box" style="width: 100%;">
             <span>.../users/</span>
-            <input type="text" value="${escapeHTML(m.discordId || '')}" placeholder="User ID" onchange="updateMemberData('${m.id}', 'discordId', this.value)">
+            <input type="text" value="${escapeHTML(m.discordId || '')}" placeholder="User ID" onchange="updateMemberData(${index}, 'discordId', this.value)">
           </div>
         </td>
         <td>
-          <button class="action-btn delete" onclick="deleteMember('${m.id}')">ลบ</button>
+          <button class="action-btn delete" onclick="deleteMember(${index})">ลบ</button>
         </td>
       </tr>
     `).join('');
   }
 
-  function updateMemberData(id, key, value) {
-    firebase.database().ref('members/' + id).update({
-      [key]: value.trim()
-    });
+  function updateMemberData(index, key, value) {
+    if(membersData[index]) {
+      membersData[index][key] = value.trim();
+      saveAndBroadcastData();
+    }
   }
 
-  function deleteMember(id) {
-    const m = membersData.find(x => x.id === id);
+  function deleteMember(index) {
+    const m = membersData[index];
     if (!m || !confirm(`ลบ "${m.name}" ใช่หรือไม่?`)) return;
-    firebase.database().ref('members/' + id).remove();
+    membersData.splice(index, 1);
+    saveAndBroadcastData();
   }
 
   function addMember() {
     const name = document.getElementById('newName').value.trim();
     if (!name) { alert('กรุณากรอกชื่อสมาชิก'); return; }
 
-    const newRef = db.push();
-    newRef.set({
+    membersData.push({
+      id: Date.now().toString(),
       name: name,
       role: document.getElementById('newRole').value,
       img: document.getElementById('newImg').value.trim(),
       imgLink: document.getElementById('newImgLink').value.trim(),
       discordId: document.getElementById('newDiscordId').value.trim()
     });
+
+    saveAndBroadcastData();
 
     document.getElementById('newName').value = '';
     document.getElementById('newImg').value = '';
@@ -679,8 +699,7 @@
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       const target = document.getElementById(id);
       target.classList.add('active');
-      if (id === 'allPage') renderPublicPage();
-      if (id === 'adminPage') renderAdminTable();
+      refreshViews();
       window.scrollTo(0, 0);
     }, 300);
   }
@@ -688,6 +707,10 @@
   function openList() { showPage('allPage'); }
   function enterAdmin() { showPage('adminPage'); }
   function exitAdmin() { showPage('hero'); }
+
+  // Initial Startup Execution
+  loadLocalData();
+  refreshViews();
 </script>
 </body>
 </html>
