@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WHY DO YOU ASK</title>
 <style>
-  :root {
-    --neon-red: #ff0000;
-    --neon-blue: #4d7fff;
-    --neon-white: #ffffff;
+  :root{
+    --neon-red:#ff0000;
+    --neon-blue:#4d7fff;
+    --neon-white:#ffffff;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -19,52 +19,65 @@
     min-height: 100vh;
   }
 
-  /* WA BG BACKGROUND */
   .wa-bg {
-    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
   .wa-bg span {
-    position: absolute; bottom: -80px; color: #fff; font-weight: 900; opacity: 0.16;
-    font-family: Georgia, serif; filter: blur(0.3px);
-    animation: waFloat 20s linear infinite, waSway 5s ease-in-out infinite;
+    position: absolute;
+    bottom: -80px;
+    color: #fff;
+    font-weight: 900;
+    opacity: 0.16;
+    font-family: Georgia, serif;
+    filter: blur(0.3px);
+    animation-name: waFloat, waSway;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
   }
-  .wa-bg span:nth-child(1){ left:4%; font-size:120px; }
-  .wa-bg span:nth-child(2){ left:20%; font-size:70px; }
-  .wa-bg span:nth-child(3){ left:40%; font-size:140px; }
-  .wa-bg span:nth-child(4){ left:65%; font-size:90px; }
-  .wa-bg span:nth-child(5){ left:85%; font-size:60px; }
+  .wa-bg span:nth-child(1){ left:4%;  font-size:120px; animation-duration:22s, 6s; }
+  .wa-bg span:nth-child(2){ left:18%; font-size:70px;  animation-duration:16s, 5s; }
+  .wa-bg span:nth-child(3){ left:32%; font-size:150px; animation-duration:28s, 7s; }
+  .wa-bg span:nth-child(4){ left:50%; font-size:90px;  animation-duration:20s, 4.5s; }
+  .wa-bg span:nth-child(5){ left:64%; font-size:60px;  animation-duration:14s, 5.5s; }
+  .wa-bg span:nth-child(6){ left:76%; font-size:130px; animation-duration:26s, 6.5s; }
+  .wa-bg span:nth-child(7){ left:88%; font-size:80px;  animation-duration:18s, 5s; }
+  .wa-bg span:nth-child(8){ left:96%; font-size:55px;  animation-duration:15s, 4s; }
 
   @keyframes waFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-140vh); } }
-  @keyframes waSway { 0%, 100% { margin-left: 0; } 50% { margin-left: 30px; } }
+  @keyframes waSway { 0%, 100% { margin-left: 0px; } 50% { margin-left: 30px; } }
 
-  /* HERO PAGE */
   #hero {
     position: relative; z-index: 1; min-height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: radial-gradient(ellipse at center, rgba(26,26,26,0.82) 0%, rgba(0,0,0,0.9) 80%);
-    text-align: center; padding: 40px 20px;
+    text-align: center; padding: 40px 20px; transition: opacity 0.35s ease;
   }
-  #hero h1 { font-size: 60px; letter-spacing: 6px; margin: 0; text-shadow: 0 0 20px rgba(255,60,60,0.6); }
+  #hero.fade-out { opacity: 0; }
+  #hero h1 { font-size: 60px; letter-spacing: 6px; margin: 0; color: #fff; text-shadow: 0 0 20px rgba(255,60,60,0.6); }
   #hero .sub { color: #e6b400; letter-spacing: 4px; font-weight: bold; margin: 14px 0 40px 0; }
-  .logo-box { background: #111; border: 1px solid #2a2a2a; border-radius: 16px; padding: 30px 50px; margin-bottom: 40px; }
-  .logo-box img { max-width: 160px; cursor: pointer; }
-
+  #hero .logo-box {
+    background: #111; border: 1px solid #2a2a2a; border-radius: 16px; padding: 40px 60px; margin-bottom: 40px;
+  }
+  #hero .logo-box img { max-width: 160px; cursor: pointer; }
   .btn {
     background: #161616; border: 1px solid #333; color: #fff; padding: 16px 32px;
-    border-radius: 10px; font-weight: bold; letter-spacing: 2px; cursor: pointer;
+    border-radius: 10px; font-weight: bold; letter-spacing: 2px; cursor: pointer; font-size: 14px;
   }
   .btn:hover { border-color: #e63946; box-shadow: 0 0 12px rgba(230,57,70,0.5); }
 
-  /* PAGES */
   .page { position: relative; z-index: 1; display: none; padding: 40px 5%; background: rgba(6,6,6,0.86); min-height: 100vh; }
   .page.active { display: block; }
   .back-btn { background: none; border: 1px solid #333; color: #ccc; padding: 8px 18px; border-radius: 8px; cursor: pointer; margin-bottom: 30px; }
-
+  
   .list-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
   .list-header img { width: 44px; height: 44px; border-radius: 10px; background: #fff; padding: 4px; }
   .list-header span { font-size: 20px; font-weight: 800; letter-spacing: 3px; }
 
-  .section-title { font-weight: bold; letter-spacing: 3px; margin-bottom: 20px; font-size: 18px; }
+  .section-title { font-weight: bold; letter-spacing: 3px; margin-bottom: 20px; font-size: 18px; display: inline-block; }
   .section-title.owner { color: var(--neon-red); text-shadow: 0 0 14px var(--neon-red); }
   .section-title.leader { color: var(--neon-blue); text-shadow: 0 0 14px var(--neon-blue); }
   .section-title.member { color: var(--neon-white); text-shadow: 0 0 14px #fff; }
@@ -90,7 +103,7 @@
   .name { font-size: 17px; font-weight: bold; }
 
   .discord-btn {
-    display: flex; align-items: center; justify-content: center; width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
     background: #23272a; border: 1px solid #333; color: #8e9297; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 14px;
   }
   .discord-btn.has-link { background: #5865F2; color: #fff; }
@@ -103,31 +116,26 @@
   
   table.admin-table { width: 100%; border-collapse: collapse; background: #101010; }
   table.admin-table th, table.admin-table td { padding: 10px; border-bottom: 1px solid #222; text-align: left; font-size: 13px; }
-  table.admin-table input, table.admin-table select { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 6px; border-radius: 4px; width: 100%; }
-
-  .sync-badge { position: fixed; top: 15px; right: 15px; z-index: 1000; background: #111; border: 1px solid #333; padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #00ff88; display: flex; align-items: center; gap: 6px; }
-  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+  table.admin-table input, table.admin-table select { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 5px; border-radius: 4px; width: 100%; }
 </style>
 </head>
 <body>
 
-<div class="sync-badge"><div class="sync-dot"></div> Realtime Data Connected</div>
-
 <div class="wa-bg">
-  <span>WA</span><span>WA</span><span>WA</span><span>WA</span><span>WA</span>
+  <span>WA</span><span>WA</span><span>WA</span><span>WA</span><span>WA</span><span>WA</span><span>WA</span><span>WA</span>
 </div>
 
-<!-- HERO PAGE -->
 <div id="hero">
   <h1>WHY DO YOU ASK</h1>
   <div class="sub">ถามทำไม</div>
   <div class="logo-box">
-    <img src="logo.png" onclick="logoClick()" onerror="this.src='https://via.placeholder.com/150'">
+    <img id="logoImg" src="logo.png" onclick="logoClick()" style="max-width:220px;background:#fff;border-radius:10px;padding:10px;" onerror="this.src='https://via.placeholder.com/150'">
   </div>
-  <button class="btn" onclick="showPage('allPage')">LIST WHY DO YOU ASK →</button>
+  <div class="buttons">
+    <button class="btn" onclick="showPage('allPage')">LIST WHY DO YOU ASK →</button>
+  </div>
 </div>
 
-<!-- ALL LIST PAGE -->
 <div class="page" id="allPage">
   <div class="list-header">
     <img src="logo.png" onerror="this.src='https://via.placeholder.com/40'">
@@ -148,7 +156,6 @@
   <div class="grid" id="memberGrid"></div>
 </div>
 
-<!-- ADMIN PAGE -->
 <div class="page" id="adminPage">
   <div class="admin-wrap">
     <button class="back-btn" onclick="showPage('hero')">← ออกจากระบบหลังบ้าน</button>
@@ -164,7 +171,7 @@
         <option value="leader">Leader</option>
         <option value="member" selected>Member</option>
       </select>
-      <button onclick="handleAddMember()">+ เพิ่มสมาชิก</button>
+      <button onclick="addMember()">+ เพิ่มสมาชิก</button>
     </div>
 
     <table class="admin-table">
@@ -176,23 +183,21 @@
   </div>
 </div>
 
-<!-- เชื่อมต่อไฟล์เก็บข้อมูล -->
+<!-- ดึงสคริปต์เก็บข้อมูล data.js -->
 <script src="data.js"></script>
 
 <script>
   const DEFAULT_IMG = 'logo.png';
 
-  // รับการอัปเดต Realtime จาก data.js
-  window.onRealtimeUpdate = function(updatedMembers) {
-    renderUI(updatedMembers);
+  // สั่ง Render ใหม่เมื่อมีอัปเดต Realtime
+  window.onRealtimeUpdate = function() {
+    render();
   };
 
-  function renderUI(membersData) {
-    const data = membersData || getMembers();
-    renderPublic(data);
-    if(document.getElementById('adminPage').classList.contains('active')) {
-      renderAdmin(data);
-    }
+  function render() {
+    const members = getMembers();
+    renderPublic(members);
+    if(document.getElementById('adminPage').classList.contains('active')) renderAdmin(members);
   }
 
   function cardHTML(m) {
@@ -218,16 +223,16 @@
       </div>`;
   }
 
-  function renderPublic(data) {
-    const getRole = r => data.filter(m => m.role === r).map(cardHTML).join('');
+  function renderPublic(members) {
+    const getRole = r => members.filter(m => m.role === r).map(cardHTML).join('');
     document.getElementById('ownerGrid').innerHTML = getRole('owner') || '<div class="empty-msg">ไม่มี Owner</div>';
     document.getElementById('leaderGrid').innerHTML = getRole('leader') || '<div class="empty-msg">ไม่มี Leader</div>';
     document.getElementById('memberGrid').innerHTML = getRole('member') || '<div class="empty-msg">ไม่มี Member</div>';
   }
 
-  function renderAdmin(data) {
+  function renderAdmin(members) {
     const tbody = document.getElementById('adminTableBody');
-    tbody.innerHTML = data.map(m => `
+    tbody.innerHTML = members.map(m => `
       <tr>
         <td><input type="text" value="${m.name}" onchange="updateMemberData('${m.id}', 'name', this.value)"></td>
         <td>
@@ -240,15 +245,15 @@
         <td><input type="text" value="${m.img||''}" onchange="updateMemberData('${m.id}', 'img', this.value)"></td>
         <td><input type="text" value="${m.imgLink||''}" onchange="updateMemberData('${m.id}', 'imgLink', this.value)"></td>
         <td><input type="text" value="${m.discordId||''}" onchange="updateMemberData('${m.id}', 'discordId', this.value)"></td>
-        <td><button onclick="handleDeleteMember('${m.id}')" style="background:#ff4d4d;color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;">ลบ</button></td>
+        <td><button onclick="deleteMember('${m.id}')" style="background:#ff4d4d;color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;">ลบ</button></td>
       </tr>
     `).join('');
   }
 
-  function handleAddMember() {
+  function addMember() {
     const name = document.getElementById('newName').value.trim();
     if(!name) return alert('กรอกชื่อด้วยครับ');
-
+    
     addMemberData({
       name: name,
       role: document.getElementById('newRole').value,
@@ -262,13 +267,13 @@
     document.getElementById('newImgLink').value = '';
     document.getElementById('newDiscordId').value = '';
 
-    renderUI();
+    render();
   }
 
-  function handleDeleteMember(id) {
+  function deleteMember(id) {
     if(confirm('ยืนยันลบรายชื่อนี้?')) {
       deleteMemberData(id);
-      renderUI();
+      render();
     }
   }
 
@@ -290,11 +295,11 @@
     hero.style.display = 'none';
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    renderUI();
+    render();
   }
 
-  // แสดงผลครั้งแรกเมื่อเปิดหน้าเว็บ
-  renderUI();
+  // Render ครั้งแรก
+  render();
 </script>
 </body>
 </html>
