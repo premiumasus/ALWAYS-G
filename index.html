@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HANMA 552</title>
+<title>WHY DO YOU ASK</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -34,6 +34,272 @@
   }
   #hero .sub {
     color: #e6b400;
+    letter-spacing: 4px;
+    font-weight: bold;
+    margin: 14px 0 40px 0;
+  }
+  #hero .logo-box {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 40px 60px;
+    margin-bottom: 40px;
+  }
+  #hero .logo-box img {
+    max-width: 160px;
+  }
+  #hero .buttons {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    background: #161616;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+  }
+  .btn:hover {
+    border-color: #e63946;
+    box-shadow: 0 0 12px rgba(230,57,70,0.5);
+  }
+
+  /* ===== LIST PAGES ===== */
+  .page {
+    display: none;
+    padding: 40px 5%;
+    background: linear-gradient(#0a0a0a, #0a0a0a);
+    min-height: 100vh;
+  }
+  .page.active { display: block; }
+
+  .back-btn {
+    background: none;
+    border: 1px solid #333;
+    color: #ccc;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 30px;
+  }
+  .back-btn:hover { border-color: #e63946; color: #fff; }
+
+  .section-title {
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  .section-title.owner { color: #e63946; }
+  .section-title.leader { color: #5865f2; }
+  .section-title.member { color: #fff; }
+
+  .divider {
+    height: 1px;
+    background: #333;
+    margin-bottom: 30px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 50px;
+  }
+
+  .card {
+    background: #131313;
+    border: 1px solid #262626;
+    border-radius: 14px;
+    padding: 20px;
+    border-top: 3px solid #444;
+  }
+  .card.owner-card { border-top-color: #e63946; }
+  .card.leader-card { border-top-color: #5865f2; }
+  .card.member-card { border-top-color: #555; }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    background: #000;
+    border: 2px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #999;
+    text-align: center;
+    overflow: hidden;
+  }
+  .card.owner-card .avatar { border-color: #e63946; }
+  .card.leader-card .avatar { border-color: #5865f2; }
+
+  .tag {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .tag.owner { color: #e63946; }
+  .tag.leader { color: #5865f2; }
+  .tag.member { color: #999; }
+
+  .name {
+    font-size: 17px;
+    font-weight: bold;
+  }
+
+  .discord-btn {
+    width: 100%;
+    background: #1c1c1c;
+    border: 1px solid #2e2e2e;
+    color: #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .discord-btn:hover { border-color: #5865f2; color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- ================= HERO PAGE ================= -->
+<div id="hero">
+  <h1>WHY DO YOU ASK</h1>
+  <div class="sub">ทำไม</div>
+  <div class="logo-box">
+    <img src="logo.png" alt="WHY DO YOU ASK logo" style="max-width:220px;width:100%;background:#fff;border-radius:10px;padding:10px;">
+  </div>
+  <div class="buttons">
+    <button class="btn" onclick="showPage('allPage')">LIST HANMA →</button>
+    <button class="btn" onclick="showPage('ownerPage')">LIST HANMA LADY →</button>
+  </div>
+</div>
+
+<!-- ================= PAGE: ALL (OWNER + LEADERS + MEMBERS) ================= -->
+<div class="page" id="allPage">
+  <button class="back-btn" onclick="showPage('hero')">← กลับ</button>
+
+  <div class="section-title owner">OWNER</div>
+  <div class="divider"></div>
+  <div class="grid">
+    <div class="card owner-card">
+      <div class="card-top">
+        <div class="avatar"><img src="logo.png" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>
+        <div>
+          <span class="tag owner">OWNER</span>
+          <span class="name">Kim Hanma</span>
+        </div>
+      </div>
+      <button class="discord-btn">Discord</button>
+    </div>
+  </div>
+
+  <div class="section-title leader">LEADERS</div>
+  <div class="divider"></div>
+  <div class="grid">
+    <div class="card leader-card">
+      <div class="card-top">
+        <div class="avatar"><img src="logo.png" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>
+        <div>
+          <span class="tag leader">LEADER</span>
+          <span class="name">Ice Draft</span>
+        </div>
+      </div>
+      <button class="discord-btn">Discord</button>
+    </div>
+    <div class="card leader-card">
+      <div class="card-top">
+        <div class="avatar"><img src="logo.png" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>
+        <div>
+          <span class="tag leader">LEADER</span>
+          <span class="name">Raze Draft</span>
+        </div>
+      </div>
+      <button class="discord-btn">Discord</button>
+    </div>
+  </div>
+
+  <div class="section-title member">MEMBER</div>
+  <div class="divider"></div>
+  <div class="grid" id="memberGrid"></div>
+</div>
+
+<!-- ================= PAGE: OWNER ONLY ================= -->
+<div class="page" id="ownerPage">
+  <button class="back-btn" onclick="showPage('hero')">← กลับ</button>
+
+  <div class="section-title owner">OWNER</div>
+  <div class="divider"></div>
+  <div class="grid">
+    <div class="card owner-card">
+      <div class="card-top">
+        <div class="avatar"><img src="logo.png" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>
+        <div>
+          <span class="tag owner">OWNER</span>
+          <span class="name">Kim Hanma</span>
+        </div>
+      </div>
+      <button class="discord-btn">Discord</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const members = [
+    "Jurich Style", "Bobby Snowfrost", "Taro Bota",
+    "Winter Kingnopro", "Yuro Scarlet", "Justin Kingnopro",
+    "Mon Delsely", "Four Starrefiect", "Owen Hanma"
+  ];
+
+  const memberGrid = document.getElementById('memberGrid');
+  members.forEach(name => {
+    const card = document.createElement('div');
+    card.className = 'card member-card';
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="avatar"><img src="logo.png" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>
+        <div>
+          <span class="tag member">MEMBER</span>
+          <span class="name">${name}</span>
+        </div>
+      </div>
+      <button class="discord-btn">Discord</button>
+    `;
+    memberGrid.appendChild(card);
+  });
+
+  function showPage(id) {
+    document.getElementById('hero').style.display = 'none';
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    if (id === 'hero') {
+      document.getElementById('hero').style.display = 'flex';
+    } else {
+      document.getElementById(id).classList.add('active');
+    }
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body>
+</html>
     letter-spacing: 4px;
     font-weight: bold;
     margin: 14px 0 40px 0;
