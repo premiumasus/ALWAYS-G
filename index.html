@@ -20,22 +20,12 @@
   }
 
   .wa-bg {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
   }
   .wa-bg span {
-    position: absolute;
-    bottom: -80px;
-    color: #fff;
-    font-weight: 900;
-    opacity: 0.16;
-    font-family: Georgia, serif;
-    filter: blur(0.3px);
-    animation-name: waFloat, waSway;
-    animation-timing-function: linear, ease-in-out;
+    position: absolute; bottom: -80px; color: #fff; font-weight: 900; opacity: 0.16;
+    font-family: Georgia, serif; filter: blur(0.3px);
+    animation-name: waFloat, waSway; animation-timing-function: linear, ease-in-out;
     animation-iteration-count: infinite, infinite;
   }
   .wa-bg span:nth-child(1){ left:4%;  font-size:120px; animation-duration:22s, 6s; }
@@ -56,7 +46,6 @@
     background: radial-gradient(ellipse at center, rgba(26,26,26,0.82) 0%, rgba(0,0,0,0.9) 80%);
     text-align: center; padding: 40px 20px; transition: opacity 0.35s ease;
   }
-  #hero.fade-out { opacity: 0; }
   #hero h1 { font-size: 60px; letter-spacing: 6px; margin: 0; color: #fff; text-shadow: 0 0 20px rgba(255,60,60,0.6); }
   #hero .sub { color: #e6b400; letter-spacing: 4px; font-weight: bold; margin: 14px 0 40px 0; }
   #hero .logo-box {
@@ -159,7 +148,7 @@
 <div class="page" id="adminPage">
   <div class="admin-wrap">
     <button class="back-btn" onclick="showPage('hero')">← ออกจากระบบหลังบ้าน</button>
-    <h2>🔒 ADMIN PANEL</h2>
+    <h2>🔒 ADMIN PANEL (GLOBAL REALTIME)</h2>
 
     <div class="admin-form">
       <input type="text" id="newName" placeholder="ชื่อสมาชิก">
@@ -183,19 +172,17 @@
   </div>
 </div>
 
-<!-- ดึงสคริปต์เก็บข้อมูล data.js -->
 <script src="data.js"></script>
 
 <script>
   const DEFAULT_IMG = 'logo.png';
 
-  // สั่ง Render ใหม่เมื่อมีอัปเดต Realtime
   window.onRealtimeUpdate = function() {
     render();
   };
 
-  function render() {
-    const members = getMembers();
+  async function render() {
+    const members = await fetchMembersData();
     renderPublic(members);
     if(document.getElementById('adminPage').classList.contains('active')) renderAdmin(members);
   }
@@ -250,11 +237,11 @@
     `).join('');
   }
 
-  function addMember() {
+  async function addMember() {
     const name = document.getElementById('newName').value.trim();
     if(!name) return alert('กรอกชื่อด้วยครับ');
     
-    addMemberData({
+    await addMemberData({
       name: name,
       role: document.getElementById('newRole').value,
       img: document.getElementById('newImg').value.trim(),
@@ -270,9 +257,9 @@
     render();
   }
 
-  function deleteMember(id) {
+  async function deleteMember(id) {
     if(confirm('ยืนยันลบรายชื่อนี้?')) {
-      deleteMemberData(id);
+      await deleteMemberData(id);
       render();
     }
   }
@@ -298,8 +285,8 @@
     render();
   }
 
-  // Render ครั้งแรก
   render();
 </script>
 </body>
 </html>
+
