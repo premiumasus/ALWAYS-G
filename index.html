@@ -251,15 +251,22 @@
   .card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
   .avatar {
     width: 60px; height: 60px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: #000;
     border: 2px solid #444;
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; color: #999; text-align: center;
     overflow: hidden;
-    transition: transform 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    flex-shrink: 0;
   }
-  .card:hover .avatar { transform: scale(1.06); }
+  .avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    background: #fff;
+  }
+  .avatar.clickable { cursor: pointer; }
+  .avatar.clickable:hover { transform: scale(1.08); }
+
   .card.owner-card .avatar { border-color: var(--neon-red); box-shadow: 0 0 10px rgba(255,23,68,0.5); }
   .card.leader-card .avatar { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(77,127,255,0.5); }
   .card.member-card .avatar { border-color: var(--neon-white); box-shadow: 0 0 10px rgba(255,255,255,0.4); }
@@ -277,9 +284,9 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
-    background: #5865F2;
-    border: 1px solid #5865F2;
-    color: #fff;
+    background: #23272a;
+    border: 1px solid #333;
+    color: #8e9297;
     padding: 10px;
     border-radius: 8px;
     text-align: center;
@@ -290,42 +297,25 @@
     transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
   }
   .discord-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-  .discord-btn:hover { background: #4752c4; transform: scale(1.02); box-shadow: 0 0 14px rgba(88,101,242,0.7); }
-  .discord-btn:active { transform: scale(0.97); }
-  .discord-btn.disabled { background: #2a2a2a; border-color: #333; color: #777; opacity: 0.7; cursor: not-allowed; pointer-events: none; }
-  .discord-btn.disabled svg { opacity: 0.5; }
+  .discord-btn.has-link { background: #5865F2; border-color: #5865F2; color: #fff; }
+  .discord-btn.has-link:hover { background: #4752c4; transform: scale(1.02); box-shadow: 0 0 14px rgba(88,101,242,0.7); }
+  .discord-btn.disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
 
-  .admin-wrap { max-width: 1000px; margin: 0 auto; }
-  .admin-title {
-    font-size: 26px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin-bottom: 6px;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(255,255,255,0.4);
-  }
+  .admin-wrap { max-width: 1100px; margin: 0 auto; }
+  .admin-title { font-size: 26px; font-weight: bold; letter-spacing: 2px; margin-bottom: 6px; color: #fff; }
   .admin-note { color: #888; font-size: 13px; margin-bottom: 30px; }
 
-  .admin-box-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #e6b400;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .admin-box-title { font-size: 15px; font-weight: bold; color: #e6b400; margin-bottom: 12px; }
 
   .admin-form {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
     background: #111;
     border: 1px solid #262626;
     border-radius: 12px;
     padding: 20px;
-    margin-bottom: 36px;
-    align-items: center;
+    margin-bottom: 30px;
   }
   .admin-form input, .admin-form select {
     background: #1a1a1a;
@@ -333,14 +323,9 @@
     color: #fff;
     padding: 10px 12px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
   }
-  .admin-form input[type="text"] { flex: 1; min-width: 180px; }
-  .admin-form input[type="file"] {
-    background: #1a1a1a;
-    color: #ccc;
-    cursor: pointer;
-  }
+  .admin-form input[type="text"] { flex: 1; min-width: 150px; }
   .admin-form button {
     background: #4d7fff;
     border: none;
@@ -349,86 +334,31 @@
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 0 14px rgba(77,127,255,0.5);
     transition: 0.2s;
   }
-  .admin-form button:hover { box-shadow: 0 0 22px rgba(77,127,255,0.9); transform: translateY(-2px); }
+  .admin-form button:hover { box-shadow: 0 0 14px rgba(77,127,255,0.7); }
 
-  table.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #101010;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  table.admin-table th, table.admin-table td {
-    padding: 12px 14px;
-    text-align: left;
-    border-bottom: 1px solid #222;
-    font-size: 14px;
-  }
-  table.admin-table th {
-    background: #1a1a1a;
-    color: #aaa;
-    letter-spacing: 1px;
-    font-size: 12px;
-    text-transform: uppercase;
-  }
+  table.admin-table { width: 100%; border-collapse: collapse; background: #101010; border-radius: 12px; overflow: hidden; }
+  table.admin-table th, table.admin-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #222; font-size: 13px; }
+  table.admin-table th { background: #1a1a1a; color: #aaa; font-size: 11px; text-transform: uppercase; }
   table.admin-table tr:hover { background: #161616; }
-  table.admin-table select {
-    background: #1c1c1c;
-    color: #fff;
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 6px 8px;
+  table.admin-table select, table.admin-table input[type="text"] {
+    background: #1c1c1c; color: #fff; border: 1px solid #333; border-radius: 6px; padding: 6px; width: 100%;
   }
-  table.admin-table input[type="text"] {
-    background: #1c1c1c;
-    color: #fff;
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 6px 8px;
-    width: 100%;
-    min-width: 160px;
-  }
-  .action-btn {
-    border: none;
-    border-radius: 6px;
-    padding: 7px 12px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-right: 6px;
-    margin-bottom: 4px;
-    transition: 0.2s;
-  }
+
+  .file-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
+  .file-btn-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  
+  .action-btn { border: none; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: bold; cursor: pointer; }
   .action-btn.delete { background: #3a1a1a; color: var(--neon-red); }
   .action-btn.delete:hover { box-shadow: 0 0 10px rgba(255,23,68,0.7); }
 
-  /* ===== MUSIC FLOATING TOGGLE ===== */
   .music-control-btn {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 999;
-    background: rgba(18, 18, 18, 0.85);
-    border: 1px solid #333;
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: bold;
-    display: none;
-    align-items: center;
-    gap: 8px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    transition: 0.25s ease;
-  }
-  .music-control-btn:hover {
-    border-color: #e63946;
-    transform: scale(1.05);
+    position: fixed; bottom: 20px; left: 20px; z-index: 999;
+    background: rgba(18, 18, 18, 0.85); border: 1px solid #333; color: #fff;
+    padding: 10px 16px; border-radius: 30px; cursor: pointer; font-size: 13px;
+    font-weight: bold; display: none; align-items: center; gap: 8px;
+    backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   }
 </style>
 </head>
@@ -484,21 +414,23 @@
   <div class="admin-wrap">
     <button class="back-btn" onclick="exitAdmin()">← ออกจากระบบหลังบ้าน</button>
     <div class="admin-title">🔒 ADMIN PANEL</div>
-    <div class="admin-note">บันทึกข้อมูลถาวรลงเครื่องอัตโนมัติ (เพลงวนลูปอัตโนมัติ + สมาชิก)</div>
+    <div class="admin-note">จัดการสมาชิก ตั้งค่ารูปภาพ ลิงก์รูปภาพ และเพลง (บันทึกถาวรลงเครื่อง)</div>
 
-    <!-- Local File Music Upload Box -->
-    <div class="admin-box-title">🎵 อัปโหลดไฟล์เพลงจากเครื่อง (บันทึกวนลูปอัตโนมัติถาวร)</div>
+    <!-- Music Settings Box -->
+    <div class="admin-box-title">🎵 อัปโหลดไฟล์เพลงวนลูป</div>
     <div class="admin-form">
       <input type="file" id="musicFileInput" accept="audio/*">
       <button onclick="clearMusicSetting()" style="background:#3a1a1a; color:var(--neon-red);">❌ ปิด/ลบเพลง</button>
-      <span id="musicFileName" style="font-size: 13px; color: #4d7fff; width: 100%; margin-top: 4px;"></span>
+      <span id="musicFileName" style="font-size: 13px; color: #4d7fff; width: 100%;"></span>
     </div>
 
-    <!-- Member Settings Box -->
-    <div class="admin-box-title">👥 จัดการสมาชิก</div>
+    <!-- Add Member Box -->
+    <div class="admin-box-title">👥 เพิ่มสมาชิกใหม่</div>
     <div class="admin-form">
-      <input type="text" id="newName" placeholder="ชื่อสมาชิกใหม่">
-      <input type="text" id="newDiscord" placeholder="ลิงก์ Discord (ไม่ใส่ก็ได้)">
+      <input type="text" id="newName" placeholder="ชื่อสมาชิก">
+      <input type="text" id="newImg" placeholder="URL รูปโปรไฟล์ (เว้นว่างไว้ใช้รูป Default)">
+      <input type="text" id="newImgLink" placeholder="ลิงก์เมื่อกดที่รูป (URL)">
+      <input type="text" id="newDiscord" placeholder="ลิงก์ Discord">
       <select id="newRole">
         <option value="owner">Owner</option>
         <option value="leader">Leader</option>
@@ -510,8 +442,10 @@
     <table class="admin-table">
       <thead>
         <tr>
+          <th>รูปโปรไฟล์</th>
           <th>ชื่อ</th>
           <th>ตำแหน่ง</th>
+          <th>ลิงก์เมื่อกดรูป</th>
           <th>ลิงก์ Discord</th>
           <th>จัดการ</th>
         </tr>
@@ -522,84 +456,65 @@
 </div>
 
 <script>
-  // ===== SYSTEM STORAGE KEY =====
-  const STORAGE_KEY_MEMBERS = "WDYA_MEMBERS_DATA";
+  const DEFAULT_IMAGE = "logo.png";
+  const STORAGE_KEY_MEMBERS = "WDYA_MEMBERS_DATA_V2";
   let idCounter = Date.now();
   let membersData = [];
   let currentObjectUrl = null;
 
-  // ===== INDEXEDDB FOR AUDIO PERMANENT STORAGE =====
+  // ===== INDEXEDDB FOR AUDIO =====
   let db;
   const request = indexedDB.open("WDYA_AudioDB", 1);
-  request.onupgradeneeded = function(e) {
+  request.onupgradeneeded = e => {
     db = e.target.result;
-    if (!db.objectStoreNames.contains("audioStore")) {
-      db.createObjectStore("audioStore");
-    }
+    if (!db.objectStoreNames.contains("audioStore")) db.createObjectStore("audioStore");
   };
-  request.onsuccess = function(e) {
+  request.onsuccess = e => {
     db = e.target.result;
-    loadSavedAudio(); // โหลดเพลงที่เซฟไว้เมื่อเข้าเว็บ
+    loadSavedAudio();
   };
 
-  // ===== AUDIO CONTROLLER =====
   const audioEl = document.getElementById('bgAudio');
   const musicBtn = document.getElementById('musicBtn');
   const fileInput = document.getElementById('musicFileInput');
   const fileNameDisplay = document.getElementById('musicFileName');
 
-  fileInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      saveAudioToDB(file);
-    }
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) saveAudioToDB(e.target.files[0]);
   });
 
   function saveAudioToDB(file) {
-    const transaction = db.transaction(["audioStore"], "readwrite");
-    const store = transaction.objectStore("audioStore");
+    const tx = db.transaction(["audioStore"], "readwrite");
+    const store = tx.objectStore("audioStore");
     store.put(file, "bgMusic");
     store.put(file.name, "bgMusicName");
-    transaction.oncomplete = function() {
-      loadSavedAudio();
-      alert("บันทึกไฟล์เพลงลงในระบบถาวรเรียบร้อยแล้ว!");
-    };
+    tx.oncomplete = () => { loadSavedAudio(); alert("บันทึกเพลงเรียบร้อย!"); };
   }
 
   function loadSavedAudio() {
     if(!db) return;
-    const transaction = db.transaction(["audioStore"], "readonly");
-    const store = transaction.objectStore("audioStore");
-    
-    const getFile = store.get("bgMusic");
-    const getName = store.get("bgMusicName");
-
-    getFile.onsuccess = function() {
-      if (getFile.result) {
+    const store = db.transaction(["audioStore"], "readonly").objectStore("audioStore");
+    store.get("bgMusic").onsuccess = e => {
+      if (e.target.result) {
         if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-        currentObjectUrl = URL.createObjectURL(getFile.result);
+        currentObjectUrl = URL.createObjectURL(e.target.result);
         audioEl.src = currentObjectUrl;
         audioEl.loop = true;
         musicBtn.style.display = 'flex';
-        
-        getName.onsuccess = function() {
-          fileNameDisplay.innerText = "🎵 ไฟล์เพลงในระบบ: " + (getName.result || "เพลงที่บันทึกไว้");
-        };
-
         attemptPlayAudio();
       }
+    };
+    store.get("bgMusicName").onsuccess = e => {
+      if(e.target.result) fileNameDisplay.innerText = "🎵 เพลงในระบบ: " + e.target.result;
     };
   }
 
   function attemptPlayAudio() {
-    const playPromise = audioEl.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        musicBtn.querySelector('span').innerText = "หยุดเพลง";
-      }).catch(error => {
-        musicBtn.querySelector('span').innerText = "กดเพื่อเล่นเพลง";
-      });
-    }
+    audioEl.play().then(() => {
+      musicBtn.querySelector('span').innerText = "หยุดเพลง";
+    }).catch(() => {
+      musicBtn.querySelector('span').innerText = "กดเพื่อเล่นเพลง";
+    });
   }
 
   function toggleAudio() {
@@ -614,47 +529,31 @@
   }
 
   function clearMusicSetting() {
-    if (confirm("คุณต้องการปิดและลบเพลงออกจากระบบใช่หรือไม่?")) {
-      const transaction = db.transaction(["audioStore"], "readwrite");
-      const store = transaction.objectStore("audioStore");
-      store.delete("bgMusic");
-      store.delete("bgMusicName");
-      
-      transaction.oncomplete = function() {
-        if (currentObjectUrl) {
-          URL.revokeObjectURL(currentObjectUrl);
-          currentObjectUrl = null;
-        }
-        audioEl.pause();
-        audioEl.src = "";
-        fileInput.value = "";
-        fileNameDisplay.innerText = "";
+    if (confirm("ลบเพลงออกจากระบบ?")) {
+      const tx = db.transaction(["audioStore"], "readwrite");
+      tx.objectStore("audioStore").clear();
+      tx.oncomplete = () => {
+        if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+        audioEl.pause(); audioEl.src = ""; fileInput.value = ""; fileNameDisplay.innerText = "";
         musicBtn.style.display = 'none';
-        alert('ลบเพลงถาวรเรียบร้อยแล้ว');
+        alert('ลบเพลงเรียบร้อย');
       };
     }
   }
 
-  // ปลดล็อกเพลงอัตโนมัติเมื่อกดหน้าเว็บครั้งแรก (Autoplay Unlock)
-  document.addEventListener('click', function unlockAudio() {
-    if (audioEl.src && audioEl.paused) {
-      audioEl.play().then(() => {
-        musicBtn.querySelector('span').innerText = "หยุดเพลง";
-      }).catch(()=>{});
-    }
+  document.addEventListener('click', () => {
+    if (audioEl.src && audioEl.paused) attemptPlayAudio();
   }, { once: true });
 
   // ===== LOCAL STORAGE FOR MEMBERS =====
   function loadMembers() {
     const saved = localStorage.getItem(STORAGE_KEY_MEMBERS);
     if (saved) {
-      try {
-        membersData = JSON.parse(saved);
-      } catch(e) {
-        membersData = [];
-      }
+      try { membersData = JSON.parse(saved); } catch(e) { membersData = []; }
     } else {
-      membersData = [];
+      membersData = [
+        { id: 1, name: "Tester", role: "owner", img: "", imgLink: "", discord: "" }
+      ];
     }
   }
 
@@ -662,31 +561,39 @@
     localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersData));
   }
 
-  // ===== LOGO CLICK -> ADMIN TRIGGER =====
-  let logoClickCount = 0;
-  let logoClickTimer = null;
+  // ===== LOGO CLICK -> ADMIN =====
+  let logoClickCount = 0, logoClickTimer = null;
   function logoClick() {
     logoClickCount++;
     clearTimeout(logoClickTimer);
     logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 3000);
-    if (logoClickCount >= 10) {
-      logoClickCount = 0;
-      enterAdmin();
-    }
+    if (logoClickCount >= 10) { logoClickCount = 0; enterAdmin(); }
   }
 
   // ===== CARD RENDERING =====
   function cardHTML(m) {
     const roleClass = m.role + "-card";
     const tagText = m.role.toUpperCase();
+    const imgSrc = (m.img && m.img.trim() !== "") ? m.img : DEFAULT_IMAGE;
+    
+    // ตั้งค่าเมื่อกดที่รูปโปรไฟล์
+    const isClickable = m.imgLink && m.imgLink.trim() !== "";
+    const avatarAttr = isClickable 
+      ? `class="avatar clickable" onclick="window.open('${escapeHTML(m.imgLink)}', '_blank')"` 
+      : `class="avatar"`;
+
     const discordIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
+    
     const discordHTML = m.discord && m.discord.trim() !== ""
-      ? `<a class="discord-btn" href="${escapeHTML(m.discord)}" target="_blank" rel="noopener">${discordIcon}Discord</a>`
+      ? `<a class="discord-btn has-link" href="${escapeHTML(m.discord)}" target="_blank" rel="noopener">${discordIcon}Discord</a>`
       : `<span class="discord-btn disabled">${discordIcon}ไม่มีลิงก์</span>`;
+
     return `
       <div class="card ${roleClass}">
         <div class="card-top">
-          <div class="avatar"><img src="logo.png" style="width:100%;height:100%;object-fit:contain;background:#fff;"></div>
+          <div ${avatarAttr}>
+            <img src="${escapeHTML(imgSrc)}" onerror="this.src='${DEFAULT_IMAGE}'">
+          </div>
           <div>
             <span class="tag ${m.role}">${tagText}</span>
             <span class="name">${escapeHTML(m.name)}</span>
@@ -697,6 +604,7 @@
   }
 
   function escapeHTML(str) {
+    if(!str) return '';
     const d = document.createElement('div');
     d.innerText = str;
     return d.innerHTML;
@@ -707,12 +615,9 @@
     const leaders = membersData.filter(m => m.role === "leader");
     const members = membersData.filter(m => m.role === "member");
 
-    document.getElementById('ownerGrid').innerHTML =
-      owners.length ? owners.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Owner</div>';
-    document.getElementById('leaderGrid').innerHTML =
-      leaders.length ? leaders.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Leader</div>';
-    document.getElementById('memberGrid').innerHTML =
-      members.length ? members.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Member</div>';
+    document.getElementById('ownerGrid').innerHTML = owners.length ? owners.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Owner</div>';
+    document.getElementById('leaderGrid').innerHTML = leaders.length ? leaders.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Leader</div>';
+    document.getElementById('memberGrid').innerHTML = members.length ? members.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Member</div>';
 
     staggerCards(document.getElementById('allPage'));
   }
@@ -722,17 +627,27 @@
     const tbody = document.getElementById('adminTableBody');
     tbody.innerHTML = membersData.map(m => `
       <tr>
-        <td>${escapeHTML(m.name)}</td>
         <td>
-          <select onchange="updateRole(${m.id}, this.value)">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <img src="${escapeHTML(m.img || DEFAULT_IMAGE)}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" onerror="this.src='${DEFAULT_IMAGE}'">
+            <input type="text" value="${escapeHTML(m.img || '')}" placeholder="URL รูปโปรไฟล์" onchange="updateMemberData(${m.id}, 'img', this.value)">
+          </div>
+        </td>
+        <td>
+          <input type="text" value="${escapeHTML(m.name)}" onchange="updateMemberData(${m.id}, 'name', this.value)">
+        </td>
+        <td>
+          <select onchange="updateMemberData(${m.id}, 'role', this.value)">
             <option value="owner" ${m.role === 'owner' ? 'selected' : ''}>Owner</option>
             <option value="leader" ${m.role === 'leader' ? 'selected' : ''}>Leader</option>
             <option value="member" ${m.role === 'member' ? 'selected' : ''}>Member</option>
           </select>
         </td>
         <td>
-          <input type="text" value="${escapeHTML(m.discord || '')}" placeholder="วางลิงก์ Discord"
-                 onchange="updateDiscord(${m.id}, this.value)">
+          <input type="text" value="${escapeHTML(m.imgLink || '')}" placeholder="วางลิงก์รูปภาพ" onchange="updateMemberData(${m.id}, 'imgLink', this.value)">
+        </td>
+        <td>
+          <input type="text" value="${escapeHTML(m.discord || '')}" placeholder="วางลิงก์ Discord" onchange="updateMemberData(${m.id}, 'discord', this.value)">
         </td>
         <td>
           <button class="action-btn delete" onclick="deleteMember(${m.id})">ลบ</button>
@@ -741,29 +656,18 @@
     `).join('');
   }
 
-  function updateRole(id, role) {
+  function updateMemberData(id, key, value) {
     const m = membersData.find(x => x.id === id);
     if (m) {
-      m.role = role;
+      m[key] = value.trim();
       saveMembers();
+      renderPublicPage();
     }
-    renderAdminTable();
-    renderPublicPage();
-  }
-
-  function updateDiscord(id, link) {
-    const m = membersData.find(x => x.id === id);
-    if (m) {
-      m.discord = link.trim();
-      saveMembers();
-    }
-    renderPublicPage();
   }
 
   function deleteMember(id) {
     const m = membersData.find(x => x.id === id);
-    if (!m) return;
-    if (!confirm(`ลบ "${m.name}" ออกจากรายชื่อใช่หรือไม่?`)) return;
+    if (!m || !confirm(`ลบ "${m.name}" ใช่หรือไม่?`)) return;
     membersData = membersData.filter(x => x.id !== id);
     saveMembers();
     renderAdminTable();
@@ -771,27 +675,31 @@
   }
 
   function addMember() {
-    const nameInput = document.getElementById('newName');
-    const discordInput = document.getElementById('newDiscord');
-    const roleInput = document.getElementById('newRole');
-    const name = nameInput.value.trim();
+    const name = document.getElementById('newName').value.trim();
     if (!name) { alert('กรุณากรอกชื่อสมาชิก'); return; }
-    
+
     idCounter++;
-    membersData.push({ id: idCounter, name: name, role: roleInput.value, discord: discordInput.value.trim() });
+    membersData.push({
+      id: idCounter,
+      name: name,
+      role: document.getElementById('newRole').value,
+      img: document.getElementById('newImg').value.trim(),
+      imgLink: document.getElementById('newImgLink').value.trim(),
+      discord: document.getElementById('newDiscord').value.trim()
+    });
     saveMembers();
 
-    nameInput.value = '';
-    discordInput.value = '';
-    roleInput.value = 'member';
+    document.getElementById('newName').value = '';
+    document.getElementById('newImg').value = '';
+    document.getElementById('newImgLink').value = '';
+    document.getElementById('newDiscord').value = '';
     renderAdminTable();
     renderPublicPage();
   }
 
   // ===== NAVIGATION =====
   function staggerCards(pageEl) {
-    const cards = pageEl.querySelectorAll('.card');
-    cards.forEach((card, i) => {
+    pageEl.querySelectorAll('.card').forEach((card, i) => {
       card.style.animation = 'none';
       card.offsetHeight;
       card.style.animationDelay = (i * 0.06) + 's';
@@ -829,49 +737,4 @@
   renderPublicPage();
 </script>
 </body>
-</html>
-status">ค้นหาไม่สำเร็จ: ${data.error.message || 'API key ผิดพลาดหรือหมดโควตา'}</div>`;
-        return;
-      }
-      const items = data.items || [];
-      if(items.length === 0){
-        searchResults.innerHTML = '<div class="search-status">ไม่พบผลลัพธ์</div>';
-        return;
-      }
-      searchResults.innerHTML = items.map(item => `
-        <div class="result-item" data-id="${item.id.videoId}" data-title="${escapeHTML(item.snippet.title)}">
-          <img src="${item.snippet.thumbnails.default.url}" alt="">
-          <div>
-            <div class="result-title">${escapeHTML(item.snippet.title)}</div>
-            <div class="result-channel">${escapeHTML(item.snippet.channelTitle)}</div>
-          </div>
-        </div>
-      `).join('');
-      searchResults.querySelectorAll('.result-item').forEach(el => {
-        el.addEventListener('click', () => {
-          tracks.push({ name: el.dataset.title, type: 'youtube', id: el.dataset.id, url: `https://www.youtube.com/watch?v=${el.dataset.id}` });
-          alert(`เพิ่มเพลง "${el.dataset.title}" เรียบร้อยแล้ว`);
-        });
-      });
-    } catch(err){
-      searchResults.innerHTML = '<div class="search-status">เกิดข้อผิดพลาดในการค้นหา ลองใหม่อีกครั้ง</div>';
-    }
-  }
-
-  searchBtn.addEventListener('click', runSearch);
-  searchInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') runSearch(); });
-
-  renderPublicPage();
-</script>
-
-</body>
-</html>
-addEventListener('keydown', (e) => { if(e.key === 'Enter') runSearch(); });
-</script>
-
-</body>
-</html>
-
-
-y>
 </html>
