@@ -1,57 +1,74 @@
 // ==========================================
-// DATA STORE & REALTIME ENGINE (data.js)
+// CENTRAL DATA STORE (Firebase Realtime Engine)
 // ==========================================
 
-const STORAGE_KEY = 'wda_members_data';
-const CHANNEL_NAME = 'wda_realtime_channel';
+// ใช้ฐานข้อมูลออนไลน์กลางฟรี (คนละเครื่องก็เห็นพร้อมกัน)
+const DB_URL = "https://my-wda-project-default-rtdb.firebaseio.com/members";
 
-const DEFAULT_MEMBERS = [
-  { id: '1', name: 'Sample Owner', role: 'owner', img: '', imgLink: '', discordId: '' }
-];
-
-function getMembers() {
-  const localData = localStorage.getItem(STORAGE_KEY);
-  if (!localData) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_MEMBERS));
-    return DEFAULT_MEMBERS;
-  }
-  return JSON.parse(localData);
-}
-
-function saveMembers(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  const channel = new BroadcastChannel(CHANNEL_NAME);
-  channel.postMessage({ type: 'SYNC_MEMBERS', data: data });
-  channel.close();
-}
-
-function addMemberData(memberObj) {
-  const members = getMembers();
-  members.push({ id: Date.now().toString(), ...memberObj });
-  saveMembers(members);
-}
-
-function updateMemberData(id, key, value) {
-  const members = getMembers();
-  const target = members.find(m => m.id === id);
-  if (target) {
-    target[key] = value.trim();
-    saveMembers(members);
+// ดึงรายชื่อทั้งหมดจากระบบกลาง
+async function fetchMembersData() {
+  try {
+    const res = await fetch(`${DB_URL}.json`);
+    const data = await res.json();
+    if (!data) return [];
+    
+    // แปลงข้อมูล Object เป็น Array รายชื่อ
+    return Object.keys(data).map(key => ({
+      id: key,
+      ...data[key]
+    }));
+  } catch (err) {
+    console.error("Fetch Data Error:", err);
+    return [];
   }
 }
 
-function deleteMemberData(id) {
-  let members = getMembers();
-  members = members.filter(m => m.id !== id);
-  saveMembers(members);
+// เพิ่มรายชื่อใหม่เข้าระบบกลาง
+async function addMemberData(memberObj) {
+  try {
+    await fetch(`${DB_URL}.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(memberObj)
+    });
+    triggerUpdate();
+  } catch (err) {
+    console.error("Add Error:", err);
+  }
 }
 
-// ฟังสัญญาณ Realtime ข้ามหน้าจอ
-const realtimeChannel = new BroadcastChannel(CHANNEL_NAME);
-realtimeChannel.onmessage = (event) => {
-  if (event.data && event.data.type === 'SYNC_MEMBERS') {
-    if (typeof window.onRealtimeUpdate === 'function') {
-      window.onRealtimeUpdate(event.data.data);
-    }
+// อัปเดตข้อมูลรายชื่อ
+async function updateMemberData(id, key, value) {
+  try {
+    await fetch(`${DB_URL}/${id}.json`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [key]: value.trim() })
+    });
+    triggerUpdate();
+  } catch (err) {
+    console.error("Update Error:", err);
   }
-};
+}
+
+// ลบรายชื่อออกจากระบบกลาง
+async function deleteMemberData(id) {
+  try {
+    await fetch(`${DB_URL}/${id}.json`, { method: 'DELETE' });
+    triggerUpdate();
+  } catch (err) {
+    console.error("Delete Error:", err);
+  }
+}
+
+// ส่งสัญญาณให้หน้าเว็บวาดรายชื่อใหม่
+function triggerUpdate() {
+  if (typeof window.onRealtimeUpdate === 'function') {
+    window.onRealtimeUpdate();
+  }
+}
+
+// Polling เช็ครายชื่อใหม่ทุก 2 วินาที (เรียลไทม์ข้ามเครื่อง)
+setInterval(() => {
+  triggerUpdate();
+}, 2000);
