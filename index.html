@@ -140,9 +140,18 @@
     margin-bottom: 20px;
     font-size: 18px;
   }
-  .section-title.owner { color: #e63946; }
-  .section-title.leader { color: #5865f2; }
-  .section-title.member { color: #fff; }
+  .section-title.owner {
+    color: #ff3b5c;
+    text-shadow: 0 0 12px rgba(255,59,92,0.6);
+  }
+  .section-title.leader {
+    color: #7c4dff;
+    text-shadow: 0 0 12px rgba(124,77,255,0.6);
+  }
+  .section-title.member {
+    color: #ffd60a;
+    text-shadow: 0 0 12px rgba(255,214,10,0.5);
+  }
 
   .divider {
     height: 1px;
@@ -171,11 +180,12 @@
     transform: translateY(-6px);
     box-shadow: 0 10px 24px rgba(0,0,0,0.5);
   }
-  .card.owner-card { border-top-color: #e63946; }
-  .card.owner-card:hover { box-shadow: 0 10px 24px rgba(230,57,70,0.25); }
-  .card.leader-card { border-top-color: #5865f2; }
-  .card.leader-card:hover { box-shadow: 0 10px 24px rgba(88,101,242,0.25); }
-  .card.member-card { border-top-color: #555; }
+  .card.owner-card { border-top-color: #ff3b5c; }
+  .card.owner-card:hover { box-shadow: 0 10px 26px rgba(255,59,92,0.35); }
+  .card.leader-card { border-top-color: #7c4dff; }
+  .card.leader-card:hover { box-shadow: 0 10px 26px rgba(124,77,255,0.35); }
+  .card.member-card { border-top-color: #ffd60a; }
+  .card.member-card:hover { box-shadow: 0 10px 26px rgba(255,214,10,0.3); }
 
   .card-top {
     display: flex;
@@ -197,8 +207,9 @@
     text-align: center;
     overflow: hidden;
   }
-  .card.owner-card .avatar { border-color: #e63946; }
-  .card.leader-card .avatar { border-color: #5865f2; }
+  .card.owner-card .avatar { border-color: #ff3b5c; }
+  .card.leader-card .avatar { border-color: #7c4dff; }
+  .card.member-card .avatar { border-color: #ffd60a; }
 
   .tag {
     font-size: 11px;
@@ -207,9 +218,9 @@
     display: block;
     margin-bottom: 4px;
   }
-  .tag.owner { color: #e63946; }
-  .tag.leader { color: #5865f2; }
-  .tag.member { color: #999; }
+  .tag.owner { color: #ff3b5c; }
+  .tag.leader { color: #7c4dff; }
+  .tag.member { color: #ffd60a; }
 
   .name {
     font-size: 17px;
@@ -228,7 +239,7 @@
     cursor: pointer;
     transition: border-color 0.25s ease, color 0.25s ease, transform 0.15s ease;
   }
-  .discord-btn:hover { border-color: #5865f2; color: #fff; transform: scale(1.02); }
+  .discord-btn:hover { border-color: #7c4dff; color: #fff; transform: scale(1.02); }
   .discord-btn:active { transform: scale(0.97); }
 
   .avatar { transition: transform 0.25s ease; }
