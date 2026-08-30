@@ -295,37 +295,6 @@
   .discord-btn.disabled { background: #2a2a2a; border-color: #333; color: #777; opacity: 0.7; cursor: not-allowed; pointer-events: none; }
   .discord-btn.disabled svg { opacity: 0.5; }
 
-  /* ===== MUSIC PLAYING INDICATOR ===== */
-  .music-indicator {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    z-index: 60;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #111;
-    border: 1px solid #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(255,255,255,0.15);
-    transition: box-shadow 0.3s ease, transform 0.2s ease, background 0.3s ease;
-  }
-  .music-indicator svg { width: 20px; height: 20px; fill: #fff; transition: opacity 0.3s ease; }
-  .music-indicator.muted svg { opacity: 0.4; }
-  .music-indicator.playing {
-    background: #0d1f14;
-    border-color: #1DB954;
-    box-shadow: 0 0 16px rgba(29,185,84,0.8);
-    animation: musicPulse 1.4s ease-in-out infinite;
-  }
-  @keyframes musicPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.12); }
-  }
-
   .admin-wrap { max-width: 1000px; margin: 0 auto; }
   .admin-title {
     font-size: 26px;
@@ -336,6 +305,16 @@
     text-shadow: 0 0 10px rgba(255,255,255,0.4);
   }
   .admin-note { color: #888; font-size: 13px; margin-bottom: 30px; }
+
+  .admin-box-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e6b400;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
   .admin-form {
     display: flex;
@@ -357,8 +336,13 @@
     font-size: 14px;
   }
   .admin-form input[type="text"] { flex: 1; min-width: 180px; }
+  .admin-form input[type="file"] {
+    background: #1a1a1a;
+    color: #ccc;
+    cursor: pointer;
+  }
   .admin-form button {
-    background: var(--neon-blue);
+    background: #4d7fff;
     border: none;
     color: #fff;
     padding: 10px 20px;
@@ -420,39 +404,61 @@
   }
   .action-btn.delete { background: #3a1a1a; color: var(--neon-red); }
   .action-btn.delete:hover { box-shadow: 0 0 10px rgba(255,23,68,0.7); }
+
+  /* ===== MUSIC FLOATING TOGGLE ===== */
+  .music-control-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 999;
+    background: rgba(18, 18, 18, 0.85);
+    border: 1px solid #333;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: 0.25s ease;
+  }
+  .music-control-btn:hover {
+    border-color: #e63946;
+    transform: scale(1.05);
+  }
 </style>
 </head>
 <body>
 
-<!-- Floating WA background effect -->
+<audio id="bgAudio" loop></audio>
+
+<button class="music-control-btn" id="musicBtn" onclick="toggleAudio()">
+  🎵 <span>เล่นเพลง</span>
+</button>
+
 <div class="wa-bg" aria-hidden="true">
   <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
   <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
 </div>
 
-<!-- Background music: uses the official Spotify iFrame API so it can loop
-     the track and report play state to the icon -->
-<div id="spotify-embed-container" style="position:fixed; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;">
-  <div id="spotify-embed-iframe"></div>
-</div>
-<div id="musicIndicator" class="music-indicator muted" onclick="toggleMute()" title="เพลงพื้นหลัง — กดเพื่อเล่น/หยุดเพลง">
-  <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
-</div>
-
 <!-- ================= HERO PAGE ================= -->
 <div id="hero">
   <h1>WHY DO YOU ASK</h1>
-  <div class="sub">ทำไม</div>
+  <div class="sub">ถามทำไม</div>
   <div class="logo-box">
     <img id="logoImg" src="logo.png" alt="WHY DO YOU ASK logo" onclick="logoClick()"
          style="max-width:220px;width:100%;background:#fff;border-radius:10px;padding:10px;">
   </div>
   <div class="buttons">
-    <button class="btn" onclick="openList()">LIST HANMA →</button>
+    <button class="btn" onclick="openList()">LIST WHY DO YOU ASK →</button>
   </div>
 </div>
 
-<!-- ================= PAGE: ALL (OWNER + LEADERS + MEMBERS) ================= -->
+<!-- ================= PAGE: ALL ================= -->
 <div class="page" id="allPage">
   <div class="list-header">
     <img src="logo.png" alt="WHY DO YOU ASK logo">
@@ -473,13 +479,23 @@
   <div class="grid" id="memberGrid"></div>
 </div>
 
-<!-- ================= PAGE: ADMIN (หลังบ้าน) ================= -->
+<!-- ================= PAGE: ADMIN ================= -->
 <div class="page" id="adminPage">
   <div class="admin-wrap">
     <button class="back-btn" onclick="exitAdmin()">← ออกจากระบบหลังบ้าน</button>
     <div class="admin-title">🔒 ADMIN PANEL</div>
-    <div class="admin-note">จัดการรายชื่อสมาชิก / ตำแหน่ง / ลิงก์ Discord (ข้อมูลจะรีเซ็ตเมื่อรีเฟรชหน้า เพราะไฟล์นี้ยังไม่ได้ต่อฐานข้อมูลจริง)</div>
+    <div class="admin-note">บันทึกข้อมูลถาวรลงเครื่องอัตโนมัติ (เพลงวนลูปอัตโนมัติ + สมาชิก)</div>
 
+    <!-- Local File Music Upload Box -->
+    <div class="admin-box-title">🎵 อัปโหลดไฟล์เพลงจากเครื่อง (บันทึกวนลูปอัตโนมัติถาวร)</div>
+    <div class="admin-form">
+      <input type="file" id="musicFileInput" accept="audio/*">
+      <button onclick="clearMusicSetting()" style="background:#3a1a1a; color:var(--neon-red);">❌ ปิด/ลบเพลง</button>
+      <span id="musicFileName" style="font-size: 13px; color: #4d7fff; width: 100%; margin-top: 4px;"></span>
+    </div>
+
+    <!-- Member Settings Box -->
+    <div class="admin-box-title">👥 จัดการสมาชิก</div>
     <div class="admin-form">
       <input type="text" id="newName" placeholder="ชื่อสมาชิกใหม่">
       <input type="text" id="newDiscord" placeholder="ลิงก์ Discord (ไม่ใส่ก็ได้)">
@@ -506,10 +522,145 @@
 </div>
 
 <script>
-  // ===== DATA (in-memory only, resets on refresh) =====
-  let idCounter = 100;
-  let membersData = [
-  ];
+  // ===== SYSTEM STORAGE KEY =====
+  const STORAGE_KEY_MEMBERS = "WDYA_MEMBERS_DATA";
+  let idCounter = Date.now();
+  let membersData = [];
+  let currentObjectUrl = null;
+
+  // ===== INDEXEDDB FOR AUDIO PERMANENT STORAGE =====
+  let db;
+  const request = indexedDB.open("WDYA_AudioDB", 1);
+  request.onupgradeneeded = function(e) {
+    db = e.target.result;
+    if (!db.objectStoreNames.contains("audioStore")) {
+      db.createObjectStore("audioStore");
+    }
+  };
+  request.onsuccess = function(e) {
+    db = e.target.result;
+    loadSavedAudio(); // โหลดเพลงที่เซฟไว้เมื่อเข้าเว็บ
+  };
+
+  // ===== AUDIO CONTROLLER =====
+  const audioEl = document.getElementById('bgAudio');
+  const musicBtn = document.getElementById('musicBtn');
+  const fileInput = document.getElementById('musicFileInput');
+  const fileNameDisplay = document.getElementById('musicFileName');
+
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      saveAudioToDB(file);
+    }
+  });
+
+  function saveAudioToDB(file) {
+    const transaction = db.transaction(["audioStore"], "readwrite");
+    const store = transaction.objectStore("audioStore");
+    store.put(file, "bgMusic");
+    store.put(file.name, "bgMusicName");
+    transaction.oncomplete = function() {
+      loadSavedAudio();
+      alert("บันทึกไฟล์เพลงลงในระบบถาวรเรียบร้อยแล้ว!");
+    };
+  }
+
+  function loadSavedAudio() {
+    if(!db) return;
+    const transaction = db.transaction(["audioStore"], "readonly");
+    const store = transaction.objectStore("audioStore");
+    
+    const getFile = store.get("bgMusic");
+    const getName = store.get("bgMusicName");
+
+    getFile.onsuccess = function() {
+      if (getFile.result) {
+        if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+        currentObjectUrl = URL.createObjectURL(getFile.result);
+        audioEl.src = currentObjectUrl;
+        audioEl.loop = true;
+        musicBtn.style.display = 'flex';
+        
+        getName.onsuccess = function() {
+          fileNameDisplay.innerText = "🎵 ไฟล์เพลงในระบบ: " + (getName.result || "เพลงที่บันทึกไว้");
+        };
+
+        attemptPlayAudio();
+      }
+    };
+  }
+
+  function attemptPlayAudio() {
+    const playPromise = audioEl.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        musicBtn.querySelector('span').innerText = "หยุดเพลง";
+      }).catch(error => {
+        musicBtn.querySelector('span').innerText = "กดเพื่อเล่นเพลง";
+      });
+    }
+  }
+
+  function toggleAudio() {
+    if (!audioEl.src) return;
+    if (audioEl.paused) {
+      audioEl.play();
+      musicBtn.querySelector('span').innerText = "หยุดเพลง";
+    } else {
+      audioEl.pause();
+      musicBtn.querySelector('span').innerText = "เล่นเพลง";
+    }
+  }
+
+  function clearMusicSetting() {
+    if (confirm("คุณต้องการปิดและลบเพลงออกจากระบบใช่หรือไม่?")) {
+      const transaction = db.transaction(["audioStore"], "readwrite");
+      const store = transaction.objectStore("audioStore");
+      store.delete("bgMusic");
+      store.delete("bgMusicName");
+      
+      transaction.oncomplete = function() {
+        if (currentObjectUrl) {
+          URL.revokeObjectURL(currentObjectUrl);
+          currentObjectUrl = null;
+        }
+        audioEl.pause();
+        audioEl.src = "";
+        fileInput.value = "";
+        fileNameDisplay.innerText = "";
+        musicBtn.style.display = 'none';
+        alert('ลบเพลงถาวรเรียบร้อยแล้ว');
+      };
+    }
+  }
+
+  // ปลดล็อกเพลงอัตโนมัติเมื่อกดหน้าเว็บครั้งแรก (Autoplay Unlock)
+  document.addEventListener('click', function unlockAudio() {
+    if (audioEl.src && audioEl.paused) {
+      audioEl.play().then(() => {
+        musicBtn.querySelector('span').innerText = "หยุดเพลง";
+      }).catch(()=>{});
+    }
+  }, { once: true });
+
+  // ===== LOCAL STORAGE FOR MEMBERS =====
+  function loadMembers() {
+    const saved = localStorage.getItem(STORAGE_KEY_MEMBERS);
+    if (saved) {
+      try {
+        membersData = JSON.parse(saved);
+      } catch(e) {
+        membersData = [];
+      }
+    } else {
+      membersData = [];
+    }
+  }
+
+  function saveMembers() {
+    localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(membersData));
+  }
 
   // ===== LOGO CLICK -> ADMIN TRIGGER =====
   let logoClickCount = 0;
@@ -524,14 +675,14 @@
     }
   }
 
-  // ===== CARD RENDERING (PUBLIC PAGE) =====
+  // ===== CARD RENDERING =====
   function cardHTML(m) {
     const roleClass = m.role + "-card";
     const tagText = m.role.toUpperCase();
-    const discordIcon = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
+    const discordIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
     const discordHTML = m.discord && m.discord.trim() !== ""
       ? `<a class="discord-btn" href="${escapeHTML(m.discord)}" target="_blank" rel="noopener">${discordIcon}Discord</a>`
-      : `<span class="discord-btn disabled">${discordIcon}ยังไม่ตั้งลิงก์</span>`;
+      : `<span class="discord-btn disabled">${discordIcon}ไม่มีลิงก์</span>`;
     return `
       <div class="card ${roleClass}">
         <div class="card-top">
@@ -566,7 +717,7 @@
     staggerCards(document.getElementById('allPage'));
   }
 
-  // ===== ADMIN TABLE RENDERING =====
+  // ===== ADMIN TABLE =====
   function renderAdminTable() {
     const tbody = document.getElementById('adminTableBody');
     tbody.innerHTML = membersData.map(m => `
@@ -592,14 +743,20 @@
 
   function updateRole(id, role) {
     const m = membersData.find(x => x.id === id);
-    if (m) m.role = role;
+    if (m) {
+      m.role = role;
+      saveMembers();
+    }
     renderAdminTable();
     renderPublicPage();
   }
 
   function updateDiscord(id, link) {
     const m = membersData.find(x => x.id === id);
-    if (m) m.discord = link.trim();
+    if (m) {
+      m.discord = link.trim();
+      saveMembers();
+    }
     renderPublicPage();
   }
 
@@ -608,6 +765,7 @@
     if (!m) return;
     if (!confirm(`ลบ "${m.name}" ออกจากรายชื่อใช่หรือไม่?`)) return;
     membersData = membersData.filter(x => x.id !== id);
+    saveMembers();
     renderAdminTable();
     renderPublicPage();
   }
@@ -618,8 +776,11 @@
     const roleInput = document.getElementById('newRole');
     const name = nameInput.value.trim();
     if (!name) { alert('กรุณากรอกชื่อสมาชิก'); return; }
+    
     idCounter++;
     membersData.push({ id: idCounter, name: name, role: roleInput.value, discord: discordInput.value.trim() });
+    saveMembers();
+
     nameInput.value = '';
     discordInput.value = '';
     roleInput.value = 'member';
@@ -627,7 +788,7 @@
     renderPublicPage();
   }
 
-  // ===== PAGE NAVIGATION =====
+  // ===== NAVIGATION =====
   function staggerCards(pageEl) {
     const cards = pageEl.querySelectorAll('.card');
     cards.forEach((card, i) => {
@@ -663,147 +824,13 @@
   function enterAdmin() { showPage('adminPage'); }
   function exitAdmin() { showPage('hero'); }
 
-  // ===== BACKGROUND MUSIC (Spotify iFrame API) =====
-  // Spotify's embed has no "silent autoplay" mode, so playback can only start
-  // on the visitor's first click/tap/key press anywhere on the page (browser
-  // audio rules block sound before that, no matter the source). Once it
-  // starts, this loops the track forever by seeking back to 0 near the end.
-  let spotifyController = null;
-  let audioUnlocked = false;
-  const SPOTIFY_TRACK_URI = 'spotify:track:6SFkLxjZLpK6PNwO91sMES';
-
-  const spotifyTag = document.createElement('script');
-  spotifyTag.src = 'https://open.spotify.com/embed/iframe-api/v1';
-  document.body.appendChild(spotifyTag);
-
-  window.onSpotifyIframeApiReady = (IFrameAPI) => {
-    const element = document.getElementById('spotify-embed-iframe');
-    const options = { uri: SPOTIFY_TRACK_URI, width: '1', height: '1' };
-    IFrameAPI.createController(element, options, (controller) => {
-      spotifyController = controller;
-      controller.addListener('playback_update', (e) => {
-        const { position, duration, isPaused, isBuffering } = e.data;
-        if (!isPaused && !isBuffering && duration > 0 && duration - position < 400) {
-          controller.seek(0);
-          controller.resume();
-        }
-      });
-    });
-  };
-
-  function setMusicIcon(playing) {
-    const icon = document.getElementById('musicIndicator');
-    icon.classList.toggle('playing', playing);
-    icon.classList.toggle('muted', !playing);
-  }
-
-  function unlockAutoplay() {
-    if (audioUnlocked || !spotifyController) return;
-    audioUnlocked = true;
-    spotifyController.play();
-    setMusicIcon(true);
-  }
-  ['click', 'touchstart', 'keydown'].forEach(evt => {
-    document.addEventListener(evt, unlockAutoplay, { once: true });
-  });
-
-  function toggleMute() {
-    if (!spotifyController) return;
-    if (!audioUnlocked) {
-      audioUnlocked = true;
-      spotifyController.play();
-      setMusicIcon(true);
-    } else {
-      const icon = document.getElementById('musicIndicator');
-      if (icon.classList.contains('playing')) {
-        spotifyController.pause();
-        setMusicIcon(false);
-      } else {
-        spotifyController.resume();
-        setMusicIcon(true);
-      }
-    }
-  }
-
+  // INIT
+  loadMembers();
   renderPublicPage();
 </script>
-
 </body>
 </html>
-icon.classList.toggle('muted', !playing);
-  }
-
-  function unlockAutoplay() {
-    if (audioUnlocked || !spotifyController) return;
-    audioUnlocked = true;
-    spotifyController.play();
-    setMusicIcon(true);
-  }
-  ['click', 'touchstart', 'keydown'].forEach(evt => {
-    document.addEventListener(evt, unlockAutoplay, { once: true });
-  });
-
-  function toggleMute() {
-    if (!spotifyController) return;
-    if (!audioUnlocked) {
-      audioUnlocked = true;
-      spotifyController.play();
-      setMusicIcon(true);
-    } else {
-      const icon = document.getElementById('musicIndicator');
-      if (icon.classList.contains('playing')) {
-        spotifyController.pause();
-        setMusicIcon(false);
-      } else {
-        spotifyController.resume();
-        setMusicIcon(true);
-      }
-    }
-  }
-
-  renderPublicPage();
-</script>
-
-</body>
-</html>
-const apiKeySave = document.getElementById('apiKeySave');
-  const searchInput = document.getElementById('searchInput');
-  const searchBtn = document.getElementById('searchBtn');
-  const searchResults = document.getElementById('searchResults');
-
-  let ytApiKey = localStorage.getItem('yt_api_key') || '';
-  if(ytApiKey) apiKeyInput.value = ytApiKey;
-
-  apiKeyToggle.addEventListener('click', () => {
-    apiKeyRow.classList.toggle('show');
-    apiKeyHint.classList.toggle('show');
-  });
-
-  apiKeySave.addEventListener('click', () => {
-    ytApiKey = apiKeyInput.value.trim();
-    localStorage.setItem('yt_api_key', ytApiKey);
-    apiKeyRow.classList.remove('show');
-    apiKeyHint.classList.remove('show');
-    searchResults.innerHTML = '<div class="search-status">บันทึกแล้ว ลองค้นหาเพลงได้เลย</div>';
-    setTimeout(() => { searchResults.innerHTML = ''; }, 2000);
-  });
-
-  async function runSearch(){
-    const q = searchInput.value.trim();
-    if(!q) return;
-    if(!ytApiKey){
-      searchResults.innerHTML = '<div class="search-status">ตั้งค่า YouTube API key ก่อน (ปุ่มด้านบน) ถึงจะค้นหาได้</div>';
-      apiKeyRow.classList.add('show');
-      apiKeyHint.classList.add('show');
-      return;
-    }
-    searchResults.innerHTML = '<div class="search-status">กำลังค้นหา...</div>';
-    try{
-      const endpoint = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(q)}&key=${ytApiKey}`;
-      const res = await fetch(endpoint);
-      const data = await res.json();
-      if(data.error){
-        searchResults.innerHTML = `<div class="search-status">ค้นหาไม่สำเร็จ: ${data.error.message || 'API key ผิดพลาดหรือหมดโควตา'}</div>`;
+status">ค้นหาไม่สำเร็จ: ${data.error.message || 'API key ผิดพลาดหรือหมดโควตา'}</div>`;
         return;
       }
       const items = data.items || [];
@@ -812,20 +839,18 @@ const apiKeySave = document.getElementById('apiKeySave');
         return;
       }
       searchResults.innerHTML = items.map(item => `
-        <div class="result-item" data-id="${item.id.videoId}" data-title="${item.snippet.title.replace(/"/g, '&quot;')}">
+        <div class="result-item" data-id="${item.id.videoId}" data-title="${escapeHTML(item.snippet.title)}">
           <img src="${item.snippet.thumbnails.default.url}" alt="">
           <div>
-            <div class="result-title">${item.snippet.title}</div>
-            <div class="result-channel">${item.snippet.channelTitle}</div>
+            <div class="result-title">${escapeHTML(item.snippet.title)}</div>
+            <div class="result-channel">${escapeHTML(item.snippet.channelTitle)}</div>
           </div>
         </div>
       `).join('');
       searchResults.querySelectorAll('.result-item').forEach(el => {
         el.addEventListener('click', () => {
-          const wasEmpty = tracks.length === 0;
           tracks.push({ name: el.dataset.title, type: 'youtube', id: el.dataset.id, url: `https://www.youtube.com/watch?v=${el.dataset.id}` });
-          renderPlaylist();
-          loadTrack(tracks.length - 1);
+          alert(`เพิ่มเพลง "${el.dataset.title}" เรียบร้อยแล้ว`);
         });
       });
     } catch(err){
@@ -835,8 +860,18 @@ const apiKeySave = document.getElementById('apiKeySave');
 
   searchBtn.addEventListener('click', runSearch);
   searchInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') runSearch(); });
+
+  renderPublicPage();
+</script>
+
+</body>
+</html>
+addEventListener('keydown', (e) => { if(e.key === 'Enter') runSearch(); });
 </script>
 
 </body>
 </html>
 
+
+y>
+</html>
