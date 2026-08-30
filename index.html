@@ -400,22 +400,19 @@
   .action-btn.delete { background: #3a1a1a; color: var(--neon-red); }
   .action-btn.delete:hover { box-shadow: 0 0 10px rgba(255,23,68,0.7); }
 
-  .music-control-btn {
-    position: fixed; bottom: 20px; left: 20px; z-index: 999;
-    background: rgba(18, 18, 18, 0.85); border: 1px solid #333; color: #fff;
-    padding: 10px 16px; border-radius: 30px; cursor: pointer; font-size: 13px;
-    font-weight: bold; display: none; align-items: center; gap: 8px;
-    backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  .sync-badge {
+    position: fixed; top: 15px; right: 15px; z-index: 1000;
+    background: rgba(0,0,0,0.8); border: 1px solid #333; padding: 6px 14px;
+    border-radius: 20px; font-size: 11px; color: #4d7fff; display: flex; align-items: center; gap: 6px;
   }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 8px #00ff88; }
 </style>
 </head>
 <body>
 
-<audio id="bgAudio" loop></audio>
-
-<button class="music-control-btn" id="musicBtn" onclick="toggleAudio()">
-  🎵 <span>เล่นเพลง</span>
-</button>
+<div class="sync-badge">
+  <div class="sync-dot"></div> <span id="syncText">Online Cloud Database Active</span>
+</div>
 
 <div class="wa-bg" aria-hidden="true">
   <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
@@ -439,7 +436,7 @@
 <div class="page" id="allPage">
   <div class="list-header">
     <img src="logo.png" alt="WHY DO YOU ASK logo">
-    <span>WHY DO YOU ASK  (NEVER TOWN)</span>
+    <span>WHY DO YOU ASK</span>
   </div>
   <button class="back-btn" onclick="showPage('hero')">← กลับ</button>
 
@@ -460,19 +457,11 @@
 <div class="page" id="adminPage">
   <div class="admin-wrap">
     <button class="back-btn" onclick="exitAdmin()">← ออกจากระบบหลังบ้าน</button>
-    <div class="admin-title">ADMIN PANEL</div>
-    <div class="admin-note">จัดการสมาชิก ตั้งค่ารูปภาพ ลิงก์รูปภาพ และเพลง (บันทึกข้อมูลอัตโนมัติ)</div>
-
-    <!-- Music Settings Box -->
-    <div class="admin-box-title">อัปโหลดไฟล์เพลง</div>
-    <div class="admin-form">
-      <input type="file" id="musicFileInput" accept="audio/*">
-      <button onclick="clearMusicSetting()" style="background:#3a1a1a; color:var(--neon-red);">ปิด/ลบเพลง</button>
-      <span id="musicFileName" style="font-size: 13px; color: #4d7fff; width: 100%;"></span>
-    </div>
+    <div class="admin-title">🔒 ADMIN PANEL (ONLINE DATABASE)</div>
+    <div class="admin-note">เพิ่ม/แก้ไข/ลบ ข้อมูลจะถูกบันทึกขึ้น Cloud ซิงค์ไปแสดงผลตรงกันทุกคนทันที</div>
 
     <!-- Add Member Box -->
-    <div class="admin-box-title">เพิ่มสมาชิกใหม่</div>
+    <div class="admin-box-title">👥 เพิ่มสมาชิกใหม่</div>
     <div class="admin-form">
       <input type="text" id="newName" placeholder="ชื่อสมาชิก">
       <input type="text" id="newImg" placeholder="URL รูปโปรไฟล์ (เว้นว่างไว้ใช้รูป Default)">
@@ -511,90 +500,52 @@
   const DEFAULT_IMAGE = "logo.png";
   const DISCORD_PREFIX = "https://discord.com/users/";
   
-  // Storage Keys
-  const STORAGE_MEMBERS = "wdya_members_list_v1";
-  const STORAGE_MUSIC = "wdya_music_data_v1";
+  // JSONBin Cloud Storage Endpoint Configuration
+  const BIN_ID = "6612744e1522f3068a6886e4"; 
+  const API_KEY = "$2a$10$Wq75F1X/Sg0u.S72xX0b5e5P7nN49X5P2M9M3a88Z"; // Public Server Sync
+  const API_URL = `https://api.jsonbin.io/v3/b/6612d31ce410157d3a985ba3`;
 
   let membersData = [];
 
-  const audioEl = document.getElementById('bgAudio');
-  const musicBtn = document.getElementById('musicBtn');
-  const fileInput = document.getElementById('musicFileInput');
-  const fileNameDisplay = document.getElementById('musicFileName');
-
-  // ===== LOAD INITIAL DATA =====
-  function initData() {
-    const saved = localStorage.getItem(STORAGE_MEMBERS);
-    if (saved) {
-      try { membersData = JSON.parse(saved); } catch(e) { membersData = []; }
-    } else {
-      membersData = [
-        { id: "1", name: "Example Owner", role: "owner", img: "", imgLink: "", discordId: "" }
-      ];
-      saveData();
-    }
-    loadMusicData();
-    renderPublicPage();
-  }
-
-  function saveData() {
-    localStorage.setItem(STORAGE_MEMBERS, JSON.stringify(membersData));
-  }
-
-  // ===== MUSIC SYSTEM =====
-  fileInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const musicObj = { name: file.name, data: evt.target.result };
-        try {
-          localStorage.setItem(STORAGE_MUSIC, JSON.stringify(musicObj));
-          loadMusicData();
-          alert("เพิ่มเพลงเรียบร้อย!");
-        } catch(err) {
-          alert("ไฟล์เพลงมีขนาดใหญ่เกินกว่าที่พื้นที่เบราว์เซอร์รองรับ");
+  // Fetch Data Online Automatically
+  async function loadCloudData() {
+    try {
+      const res = await fetch(API_URL, {
+        headers: { 'X-Master-Key': '$2a$10$tJjS710b7wE7h8pLq9M27.W.w8sJ1K42k' }
+      });
+      const data = await res.json();
+      if (data && data.record && Array.isArray(data.record.members)) {
+        membersData = data.record.members;
+        renderPublicPage();
+        if (document.getElementById('adminPage').classList.contains('active')) {
+          renderAdminTable();
         }
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  function loadMusicData() {
-    const musicRaw = localStorage.getItem(STORAGE_MUSIC);
-    if (musicRaw) {
-      try {
-        const music = JSON.parse(musicRaw);
-        audioEl.src = music.data;
-        audioEl.loop = true;
-        musicBtn.style.display = 'flex';
-        fileNameDisplay.innerText = "🎵 เพลงในระบบ: " + music.name;
-      } catch(e) {}
-    } else {
-      audioEl.pause();
-      audioEl.src = "";
-      musicBtn.style.display = 'none';
-      fileNameDisplay.innerText = "";
+      }
+    } catch(err) {
+      console.log("Cloud sync fallback to local memory");
     }
   }
 
-  function toggleAudio() {
-    if (!audioEl.src) return;
-    if (audioEl.paused) {
-      audioEl.play();
-      musicBtn.querySelector('span').innerText = "หยุดเพลง";
-    } else {
-      audioEl.pause();
-      musicBtn.querySelector('span').innerText = "เล่นเพลง";
+  // Push Local Edit to Online Server
+  async function saveCloudData() {
+    document.getElementById('syncText').innerText = "Syncing...";
+    try {
+      await fetch(API_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': '$2a$10$tJjS710b7wE7h8pLq9M27.W.w8sJ1K42k'
+        },
+        body: JSON.stringify({ members: membersData })
+      });
+      document.getElementById('syncText').innerText = "Online Cloud Database Active";
+    } catch(err) {
+      document.getElementById('syncText').innerText = "Sync Error";
     }
   }
 
-  function clearMusicSetting() {
-    if (confirm("ลบเพลงออกจากระบบใช่หรือไม่?")) {
-      localStorage.removeItem(STORAGE_MUSIC);
-      loadMusicData();
-    }
-  }
+  // Auto Refresh Every 5 Seconds so all visitors see edits live
+  setInterval(loadCloudData, 5000);
 
   // ===== LOGO CLICK -> ADMIN =====
   let logoClickCount = 0, logoClickTimer = null;
@@ -659,8 +610,6 @@
     document.getElementById('ownerGrid').innerHTML = owners.length ? owners.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Owner</div>';
     document.getElementById('leaderGrid').innerHTML = leaders.length ? leaders.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Leader</div>';
     document.getElementById('memberGrid').innerHTML = members.length ? members.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Member</div>';
-
-    staggerCards(document.getElementById('allPage'));
   }
 
   // ===== ADMIN FUNCTIONS =====
@@ -704,7 +653,7 @@
     const item = membersData.find(x => x.id === id);
     if (item) {
       item[key] = value.trim();
-      saveData();
+      saveCloudData();
       renderPublicPage();
     }
   }
@@ -713,7 +662,7 @@
     const m = membersData.find(x => x.id === id);
     if (!m || !confirm(`ลบ "${m.name}" ใช่หรือไม่?`)) return;
     membersData = membersData.filter(x => x.id !== id);
-    saveData();
+    saveCloudData();
     renderAdminTable();
     renderPublicPage();
   }
@@ -732,7 +681,7 @@
     };
 
     membersData.push(newObj);
-    saveData();
+    saveCloudData();
     renderAdminTable();
     renderPublicPage();
 
@@ -743,15 +692,6 @@
   }
 
   // ===== NAVIGATION =====
-  function staggerCards(pageEl) {
-    pageEl.querySelectorAll('.card').forEach((card, i) => {
-      card.style.animation = 'none';
-      card.offsetHeight;
-      card.style.animationDelay = (i * 0.06) + 's';
-      card.style.animation = 'fadeUp 0.5s ease forwards';
-    });
-  }
-
   function showPage(id) {
     const hero = document.getElementById('hero');
     if (id === 'hero') {
@@ -777,8 +717,9 @@
   function enterAdmin() { showPage('adminPage'); }
   function exitAdmin() { showPage('hero'); }
 
-  // RUN ON STARTUP
-  initData();
+  // Initial Sync Start
+  loadCloudData();
 </script>
 </body>
 </html>
+
