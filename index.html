@@ -248,24 +248,87 @@
   .name { font-size: 17px; font-weight: bold; }
 
   .discord-btn, a.discord-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: 100%;
-    background: #1c1c1c;
-    border: 1px solid #2e2e2e;
-    color: #ccc;
+    background: #5865F2;
+    border: 1px solid #5865F2;
+    color: #fff;
     padding: 10px;
     border-radius: 8px;
     text-align: center;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: none;
-    transition: border-color 0.25s ease, color 0.25s ease, transform 0.15s ease;
+    transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
   }
-  .discord-btn:hover { border-color: var(--neon-blue); color: #fff; transform: scale(1.02); box-shadow: 0 0 12px rgba(77,127,255,0.5); }
+  .discord-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .discord-btn:hover { background: #4752c4; transform: scale(1.02); box-shadow: 0 0 14px rgba(88,101,242,0.7); }
   .discord-btn:active { transform: scale(0.97); }
-  .discord-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .discord-btn.disabled { background: #2a2a2a; border-color: #333; color: #777; opacity: 0.7; cursor: not-allowed; pointer-events: none; }
+  .discord-btn.disabled svg { opacity: 0.5; }
 
-  /* ===== ADMIN PANEL ===== */
+  /* ===== SPOTIFY MUSIC PLAYER ===== */
+  .music-player {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 50;
+    width: 300px;
+    max-width: 90vw;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease forwards 1s;
+  }
+  .music-player iframe {
+    display: block;
+    width: 100%;
+    border: none;
+  }
+  .music-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    z-index: 52;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .music-player { position: fixed; }
+  .music-toggle {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 51;
+    background: #1DB954;
+    color: #fff;
+    border: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 14px rgba(29,185,84,0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .music-toggle:hover { transform: scale(1.08); box-shadow: 0 0 22px rgba(29,185,84,0.9); }
+  .music-toggle svg { width: 22px; height: 22px; }
+  .music-player.hidden { display: none; }
+  .music-toggle.hidden { display: none; }
   .admin-wrap { max-width: 1000px; margin: 0 auto; }
   .admin-title {
     font-size: 26px;
@@ -358,8 +421,6 @@
     margin-bottom: 4px;
     transition: 0.2s;
   }
-  .action-btn.demote { background: #3a3a1a; color: #ffd60a; }
-  .action-btn.demote:hover { box-shadow: 0 0 10px rgba(255,214,10,0.6); }
   .action-btn.delete { background: #3a1a1a; color: var(--neon-red); }
   .action-btn.delete:hover { box-shadow: 0 0 10px rgba(255,23,68,0.7); }
 </style>
@@ -371,6 +432,17 @@
   <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
   <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
 </div>
+
+<!-- Spotify Music Player -->
+<div class="music-player" id="musicPlayer">
+  <button class="music-close" onclick="toggleMusicPlayer()" title="ซ่อนเพลง">✕</button>
+  <iframe src="https://open.spotify.com/embed/track/49bUK8vn5R9S3ugQoNGtug?utm_source=generator&theme=0"
+          height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"></iframe>
+</div>
+<button class="music-toggle hidden" id="musicToggle" onclick="toggleMusicPlayer()" title="เปิดเพลง">
+  <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+</button>
 
 <!-- ================= HERO PAGE ================= -->
 <div id="hero">
@@ -469,9 +541,10 @@
   function cardHTML(m) {
     const roleClass = m.role + "-card";
     const tagText = m.role.toUpperCase();
+    const discordIcon = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
     const discordHTML = m.discord && m.discord.trim() !== ""
-      ? `<a class="discord-btn" href="${escapeHTML(m.discord)}" target="_blank" rel="noopener">Discord</a>`
-      : `<span class="discord-btn disabled">ยังไม่ตั้งลิงก์</span>`;
+      ? `<a class="discord-btn" href="${escapeHTML(m.discord)}" target="_blank" rel="noopener">${discordIcon}Discord</a>`
+      : `<span class="discord-btn disabled">${discordIcon}ยังไม่ตั้งลิงก์</span>`;
     return `
       <div class="card ${roleClass}">
         <div class="card-top">
@@ -524,7 +597,6 @@
                  onchange="updateDiscord(${m.id}, this.value)">
         </td>
         <td>
-          <button class="action-btn demote" onclick="demote(${m.id})">ถอดตำแหน่ง</button>
           <button class="action-btn delete" onclick="deleteMember(${m.id})">ลบ</button>
         </td>
       </tr>
@@ -541,13 +613,6 @@
   function updateDiscord(id, link) {
     const m = membersData.find(x => x.id === id);
     if (m) m.discord = link.trim();
-    renderPublicPage();
-  }
-
-  function demote(id) {
-    const m = membersData.find(x => x.id === id);
-    if (m) m.role = "member";
-    renderAdminTable();
     renderPublicPage();
   }
 
@@ -611,8 +676,14 @@
   function enterAdmin() { showPage('adminPage'); }
   function exitAdmin() { showPage('hero'); }
 
+  function toggleMusicPlayer() {
+    document.getElementById('musicPlayer').classList.toggle('hidden');
+    document.getElementById('musicToggle').classList.toggle('hidden');
+  }
+
   renderPublicPage();
 </script>
 
 </body>
 </html>
+
