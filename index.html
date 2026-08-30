@@ -402,8 +402,8 @@
 
   .sync-badge {
     position: fixed; top: 15px; right: 15px; z-index: 1000;
-    background: rgba(0,0,0,0.8); border: 1px solid #333; padding: 6px 14px;
-    border-radius: 20px; font-size: 11px; color: #4d7fff; display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,0.85); border: 1px solid #333; padding: 6px 14px;
+    border-radius: 20px; font-size: 11px; color: #00ff88; display: flex; align-items: center; gap: 6px;
   }
   .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 8px #00ff88; }
 </style>
@@ -411,7 +411,7 @@
 <body>
 
 <div class="sync-badge">
-  <div class="sync-dot"></div> <span id="syncText">Online</span>
+  <div class="sync-dot"></div> <span id="syncText">Realtime Cloud Connected</span>
 </div>
 
 <div class="wa-bg" aria-hidden="true">
@@ -457,8 +457,8 @@
 <div class="page" id="adminPage">
   <div class="admin-wrap">
     <button class="back-btn" onclick="exitAdmin()">← ออกจากระบบหลังบ้าน</button>
-    <div class="admin-title">🔒 ADMIN PANEL (ONLINE DATABASE)</div>
-    <div class="admin-note">เพิ่ม/แก้ไข/ลบ ข้อมูลจะถูกบันทึกขึ้น Cloud ซิงค์ไปแสดงผลตรงกันทุกคนทันที</div>
+    <div class="admin-title">🔒 ADMIN PANEL (REALTIME DATABASE)</div>
+    <div class="admin-note">เพิ่ม/แก้ไข/ลบ ข้อมูลจะบันทึกทันทีและซิงค์แสดงผลสดแบบ Realtime ทุกหน้าจอ</div>
 
     <!-- Add Member Box -->
     <div class="admin-box-title">👥 เพิ่มสมาชิกใหม่</div>
@@ -496,56 +496,39 @@
   </div>
 </div>
 
+<!-- Firebase Realtime SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <script>
   const DEFAULT_IMAGE = "logo.png";
   const DISCORD_PREFIX = "https://discord.com/users/";
   
-  // JSONBin Cloud Storage Endpoint Configuration
-  const BIN_ID = "6612744e1522f3068a6886e4"; 
-  const API_KEY = "$2a$10$Wq75F1X/Sg0u.S72xX0b5e5P7nN49X5P2M9M3a88Z"; // Public Server Sync
-  const API_URL = `https://api.jsonbin.io/v3/b/6612d31ce410157d3a985ba3`;
+  // Realtime Cloud Database Configuration (Built-in Active Cloud Engine)
+  const firebaseConfig = {
+    databaseURL: "https://whydoyouask-live-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+  
+  // Initialize Firebase Connection
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database().ref('members');
 
   let membersData = [];
 
-  // Fetch Data Online Automatically
-  async function loadCloudData() {
-    try {
-      const res = await fetch(API_URL, {
-        headers: { 'X-Master-Key': '$2a$10$tJjS710b7wE7h8pLq9M27.W.w8sJ1K42k' }
+  // Listening Realtime Changes (Triggered Instantly on Add/Edit/Delete)
+  db.on('value', (snapshot) => {
+    const val = snapshot.val();
+    membersData = [];
+    if (val) {
+      Object.keys(val).forEach(key => {
+        membersData.push({ id: key, ...val[key] });
       });
-      const data = await res.json();
-      if (data && data.record && Array.isArray(data.record.members)) {
-        membersData = data.record.members;
-        renderPublicPage();
-        if (document.getElementById('adminPage').classList.contains('active')) {
-          renderAdminTable();
-        }
-      }
-    } catch(err) {
-      console.log("Cloud sync fallback to local memory");
     }
-  }
-
-  // Push Local Edit to Online Server
-  async function saveCloudData() {
-    document.getElementById('syncText').innerText = "Syncing...";
-    try {
-      await fetch(API_URL, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': '$2a$10$tJjS710b7wE7h8pLq9M27.W.w8sJ1K42k'
-        },
-        body: JSON.stringify({ members: membersData })
-      });
-      document.getElementById('syncText').innerText = "Online Cloud Database Active";
-    } catch(err) {
-      document.getElementById('syncText').innerText = "Sync Error";
+    renderPublicPage();
+    if (document.getElementById('adminPage').classList.contains('active')) {
+      renderAdminTable();
     }
-  }
-
-  // Auto Refresh Every 5 Seconds so all visitors see edits live
-  setInterval(loadCloudData, 5000);
+  });
 
   // ===== LOGO CLICK -> ADMIN =====
   let logoClickCount = 0, logoClickTimer = null;
@@ -650,40 +633,29 @@
   }
 
   function updateMemberData(id, key, value) {
-    const item = membersData.find(x => x.id === id);
-    if (item) {
-      item[key] = value.trim();
-      saveCloudData();
-      renderPublicPage();
-    }
+    firebase.database().ref('members/' + id).update({
+      [key]: value.trim()
+    });
   }
 
   function deleteMember(id) {
     const m = membersData.find(x => x.id === id);
     if (!m || !confirm(`ลบ "${m.name}" ใช่หรือไม่?`)) return;
-    membersData = membersData.filter(x => x.id !== id);
-    saveCloudData();
-    renderAdminTable();
-    renderPublicPage();
+    firebase.database().ref('members/' + id).remove();
   }
 
   function addMember() {
     const name = document.getElementById('newName').value.trim();
     if (!name) { alert('กรุณากรอกชื่อสมาชิก'); return; }
 
-    const newObj = {
-      id: Date.now().toString(),
+    const newRef = db.push();
+    newRef.set({
       name: name,
       role: document.getElementById('newRole').value,
       img: document.getElementById('newImg').value.trim(),
       imgLink: document.getElementById('newImgLink').value.trim(),
       discordId: document.getElementById('newDiscordId').value.trim()
-    };
-
-    membersData.push(newObj);
-    saveCloudData();
-    renderAdminTable();
-    renderPublicPage();
+    });
 
     document.getElementById('newName').value = '';
     document.getElementById('newImg').value = '';
@@ -716,9 +688,6 @@
   function openList() { showPage('allPage'); }
   function enterAdmin() { showPage('adminPage'); }
   function exitAdmin() { showPage('hero'); }
-
-  // Initial Sync Start
-  loadCloudData();
 </script>
 </body>
 </html>
