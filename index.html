@@ -6,7 +6,7 @@
 <title>WHY DO YOU ASK</title>
 <style>
   :root{
-    --neon-red:#ff1744;
+    --neon-red:#ff0000;
     --neon-blue:#4d7fff;
     --neon-white:#ffffff;
   }
@@ -32,7 +32,7 @@
     bottom: -80px;
     color: #fff;
     font-weight: 900;
-    opacity: 0.08;
+    opacity: 0.16;
     font-family: Georgia, serif;
     filter: blur(0.3px);
     animation-name: waFloat, waSway;
@@ -66,7 +66,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(ellipse at center, rgba(26,26,26,0.9) 0%, rgba(0,0,0,0.95) 80%);
+    background: radial-gradient(ellipse at center, rgba(26,26,26,0.82) 0%, rgba(0,0,0,0.9) 80%);
     text-align: center;
     padding: 40px 20px;
     transition: opacity 0.35s ease;
@@ -153,13 +153,15 @@
     z-index: 1;
     display: none;
     padding: 40px 5%;
-    background: rgba(6,6,6,0.94);
+    background: rgba(6,6,6,0.86);
     min-height: 100vh;
     opacity: 0;
   }
   .page.active { display: block; animation: fadeIn 0.45s ease forwards; }
 
   .back-btn {
+    display: block;
+    width: fit-content;
     background: none;
     border: 1px solid #333;
     color: #ccc;
@@ -170,6 +172,28 @@
     transition: 0.2s;
   }
   .back-btn:hover { border-color: #e63946; color: #fff; }
+
+  .list-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .list-header img {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #fff;
+    padding: 4px;
+    box-shadow: 0 0 14px rgba(255,255,255,0.25);
+  }
+  .list-header span {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255,255,255,0.4);
+  }
 
   .section-title {
     font-weight: bold;
@@ -271,64 +295,37 @@
   .discord-btn.disabled { background: #2a2a2a; border-color: #333; color: #777; opacity: 0.7; cursor: not-allowed; pointer-events: none; }
   .discord-btn.disabled svg { opacity: 0.5; }
 
-  /* ===== SPOTIFY MUSIC PLAYER ===== */
-  .music-player {
+  /* ===== MUSIC PLAYING INDICATOR ===== */
+  .music-indicator {
     position: fixed;
     bottom: 16px;
     right: 16px;
-    z-index: 50;
-    width: 300px;
-    max-width: 90vw;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeUp 0.6s ease forwards 1s;
-  }
-  .music-player iframe {
-    display: block;
-    width: 100%;
-    border: none;
-  }
-  .music-close {
-    position: absolute;
-    top: 6px;
-    right: 8px;
-    z-index: 52;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    border: none;
-    width: 22px;
-    height: 22px;
+    z-index: 60;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    font-size: 12px;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .music-player { position: fixed; }
-  .music-toggle {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    z-index: 51;
-    background: #1DB954;
-    color: #fff;
-    border: none;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    cursor: pointer;
+    background: #111;
+    border: 1px solid #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 14px rgba(29,185,84,0.6);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255,255,255,0.15);
+    transition: box-shadow 0.3s ease, transform 0.2s ease, background 0.3s ease;
   }
-  .music-toggle:hover { transform: scale(1.08); box-shadow: 0 0 22px rgba(29,185,84,0.9); }
-  .music-toggle svg { width: 22px; height: 22px; }
-  .music-player.hidden { display: none; }
-  .music-toggle.hidden { display: none; }
+  .music-indicator svg { width: 20px; height: 20px; fill: #fff; transition: opacity 0.3s ease; }
+  .music-indicator.muted svg { opacity: 0.4; }
+  .music-indicator.playing {
+    background: #0d1f14;
+    border-color: #1DB954;
+    box-shadow: 0 0 16px rgba(29,185,84,0.8);
+    animation: musicPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes musicPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+
   .admin-wrap { max-width: 1000px; margin: 0 auto; }
   .admin-title {
     font-size: 26px;
@@ -433,16 +430,14 @@
   <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
 </div>
 
-<!-- Spotify Music Player -->
-<div class="music-player" id="musicPlayer">
-  <button class="music-close" onclick="toggleMusicPlayer()" title="ซ่อนเพลง">✕</button>
-  <iframe src="https://open.spotify.com/embed/track/49bUK8vn5R9S3ugQoNGtug?utm_source=generator&theme=0"
-          height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"></iframe>
+<!-- Background music: uses the official Spotify iFrame API so it can loop
+     the track and report play state to the icon -->
+<div id="spotify-embed-container" style="position:fixed; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;">
+  <div id="spotify-embed-iframe"></div>
 </div>
-<button class="music-toggle hidden" id="musicToggle" onclick="toggleMusicPlayer()" title="เปิดเพลง">
-  <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
-</button>
+<div id="musicIndicator" class="music-indicator muted" onclick="toggleMute()" title="เพลงพื้นหลัง — กดเพื่อเล่น/หยุดเพลง">
+  <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+</div>
 
 <!-- ================= HERO PAGE ================= -->
 <div id="hero">
@@ -459,6 +454,10 @@
 
 <!-- ================= PAGE: ALL (OWNER + LEADERS + MEMBERS) ================= -->
 <div class="page" id="allPage">
+  <div class="list-header">
+    <img src="logo.png" alt="WHY DO YOU ASK logo">
+    <span>WHY DO YOU ASK</span>
+  </div>
   <button class="back-btn" onclick="showPage('hero')">← กลับ</button>
 
   <div class="section-title owner">OWNER</div>
@@ -510,18 +509,6 @@
   // ===== DATA (in-memory only, resets on refresh) =====
   let idCounter = 100;
   let membersData = [
-    { id: 1,  name: "Kim Hanma",        role: "owner",  discord: "" },
-    { id: 2,  name: "Ice Draft",        role: "leader", discord: "" },
-    { id: 3,  name: "Raze Draft",       role: "leader", discord: "" },
-    { id: 4,  name: "Jurich Style",     role: "member", discord: "" },
-    { id: 5,  name: "Bobby Snowfrost",  role: "member", discord: "" },
-    { id: 6,  name: "Taro Bota",        role: "member", discord: "" },
-    { id: 7,  name: "Winter Kingnopro", role: "member", discord: "" },
-    { id: 8,  name: "Yuro Scarlet",     role: "member", discord: "" },
-    { id: 9,  name: "Justin Kingnopro", role: "member", discord: "" },
-    { id: 10, name: "Mon Delsely",      role: "member", discord: "" },
-    { id: 11, name: "Four Starrefiect", role: "member", discord: "" },
-    { id: 12, name: "Owen Hanma",       role: "member", discord: "" }
   ];
 
   // ===== LOGO CLICK -> ADMIN TRIGGER =====
@@ -676,12 +663,178 @@
   function enterAdmin() { showPage('adminPage'); }
   function exitAdmin() { showPage('hero'); }
 
-  function toggleMusicPlayer() {
-    document.getElementById('musicPlayer').classList.toggle('hidden');
-    document.getElementById('musicToggle').classList.toggle('hidden');
+  // ===== BACKGROUND MUSIC (Spotify iFrame API) =====
+  // Spotify's embed has no "silent autoplay" mode, so playback can only start
+  // on the visitor's first click/tap/key press anywhere on the page (browser
+  // audio rules block sound before that, no matter the source). Once it
+  // starts, this loops the track forever by seeking back to 0 near the end.
+  let spotifyController = null;
+  let audioUnlocked = false;
+  const SPOTIFY_TRACK_URI = 'spotify:track:6SFkLxjZLpK6PNwO91sMES';
+
+  const spotifyTag = document.createElement('script');
+  spotifyTag.src = 'https://open.spotify.com/embed/iframe-api/v1';
+  document.body.appendChild(spotifyTag);
+
+  window.onSpotifyIframeApiReady = (IFrameAPI) => {
+    const element = document.getElementById('spotify-embed-iframe');
+    const options = { uri: SPOTIFY_TRACK_URI, width: '1', height: '1' };
+    IFrameAPI.createController(element, options, (controller) => {
+      spotifyController = controller;
+      controller.addListener('playback_update', (e) => {
+        const { position, duration, isPaused, isBuffering } = e.data;
+        if (!isPaused && !isBuffering && duration > 0 && duration - position < 400) {
+          controller.seek(0);
+          controller.resume();
+        }
+      });
+    });
+  };
+
+  function setMusicIcon(playing) {
+    const icon = document.getElementById('musicIndicator');
+    icon.classList.toggle('playing', playing);
+    icon.classList.toggle('muted', !playing);
+  }
+
+  function unlockAutoplay() {
+    if (audioUnlocked || !spotifyController) return;
+    audioUnlocked = true;
+    spotifyController.play();
+    setMusicIcon(true);
+  }
+  ['click', 'touchstart', 'keydown'].forEach(evt => {
+    document.addEventListener(evt, unlockAutoplay, { once: true });
+  });
+
+  function toggleMute() {
+    if (!spotifyController) return;
+    if (!audioUnlocked) {
+      audioUnlocked = true;
+      spotifyController.play();
+      setMusicIcon(true);
+    } else {
+      const icon = document.getElementById('musicIndicator');
+      if (icon.classList.contains('playing')) {
+        spotifyController.pause();
+        setMusicIcon(false);
+      } else {
+        spotifyController.resume();
+        setMusicIcon(true);
+      }
+    }
   }
 
   renderPublicPage();
+</script>
+
+</body>
+</html>
+icon.classList.toggle('muted', !playing);
+  }
+
+  function unlockAutoplay() {
+    if (audioUnlocked || !spotifyController) return;
+    audioUnlocked = true;
+    spotifyController.play();
+    setMusicIcon(true);
+  }
+  ['click', 'touchstart', 'keydown'].forEach(evt => {
+    document.addEventListener(evt, unlockAutoplay, { once: true });
+  });
+
+  function toggleMute() {
+    if (!spotifyController) return;
+    if (!audioUnlocked) {
+      audioUnlocked = true;
+      spotifyController.play();
+      setMusicIcon(true);
+    } else {
+      const icon = document.getElementById('musicIndicator');
+      if (icon.classList.contains('playing')) {
+        spotifyController.pause();
+        setMusicIcon(false);
+      } else {
+        spotifyController.resume();
+        setMusicIcon(true);
+      }
+    }
+  }
+
+  renderPublicPage();
+</script>
+
+</body>
+</html>
+const apiKeySave = document.getElementById('apiKeySave');
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const searchResults = document.getElementById('searchResults');
+
+  let ytApiKey = localStorage.getItem('yt_api_key') || '';
+  if(ytApiKey) apiKeyInput.value = ytApiKey;
+
+  apiKeyToggle.addEventListener('click', () => {
+    apiKeyRow.classList.toggle('show');
+    apiKeyHint.classList.toggle('show');
+  });
+
+  apiKeySave.addEventListener('click', () => {
+    ytApiKey = apiKeyInput.value.trim();
+    localStorage.setItem('yt_api_key', ytApiKey);
+    apiKeyRow.classList.remove('show');
+    apiKeyHint.classList.remove('show');
+    searchResults.innerHTML = '<div class="search-status">บันทึกแล้ว ลองค้นหาเพลงได้เลย</div>';
+    setTimeout(() => { searchResults.innerHTML = ''; }, 2000);
+  });
+
+  async function runSearch(){
+    const q = searchInput.value.trim();
+    if(!q) return;
+    if(!ytApiKey){
+      searchResults.innerHTML = '<div class="search-status">ตั้งค่า YouTube API key ก่อน (ปุ่มด้านบน) ถึงจะค้นหาได้</div>';
+      apiKeyRow.classList.add('show');
+      apiKeyHint.classList.add('show');
+      return;
+    }
+    searchResults.innerHTML = '<div class="search-status">กำลังค้นหา...</div>';
+    try{
+      const endpoint = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(q)}&key=${ytApiKey}`;
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      if(data.error){
+        searchResults.innerHTML = `<div class="search-status">ค้นหาไม่สำเร็จ: ${data.error.message || 'API key ผิดพลาดหรือหมดโควตา'}</div>`;
+        return;
+      }
+      const items = data.items || [];
+      if(items.length === 0){
+        searchResults.innerHTML = '<div class="search-status">ไม่พบผลลัพธ์</div>';
+        return;
+      }
+      searchResults.innerHTML = items.map(item => `
+        <div class="result-item" data-id="${item.id.videoId}" data-title="${item.snippet.title.replace(/"/g, '&quot;')}">
+          <img src="${item.snippet.thumbnails.default.url}" alt="">
+          <div>
+            <div class="result-title">${item.snippet.title}</div>
+            <div class="result-channel">${item.snippet.channelTitle}</div>
+          </div>
+        </div>
+      `).join('');
+      searchResults.querySelectorAll('.result-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const wasEmpty = tracks.length === 0;
+          tracks.push({ name: el.dataset.title, type: 'youtube', id: el.dataset.id, url: `https://www.youtube.com/watch?v=${el.dataset.id}` });
+          renderPlaylist();
+          loadTrack(tracks.length - 1);
+        });
+      });
+    } catch(err){
+      searchResults.innerHTML = '<div class="search-status">เกิดข้อผิดพลาดในการค้นหา ลองใหม่อีกครั้ง</div>';
+    }
+  }
+
+  searchBtn.addEventListener('click', runSearch);
+  searchInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') runSearch(); });
 </script>
 
 </body>
