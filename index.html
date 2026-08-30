@@ -148,7 +148,7 @@
 <div class="page" id="adminPage">
   <div class="admin-wrap">
     <button class="back-btn" onclick="showPage('hero')">← ออกจากระบบหลังบ้าน</button>
-    <h2>🔒 ADMIN PANEL (GLOBAL REALTIME)</h2>
+    <h2>🔒 ADMIN PANEL</h2>
 
     <div class="admin-form">
       <input type="text" id="newName" placeholder="ชื่อสมาชิก">
@@ -172,19 +172,18 @@
   </div>
 </div>
 
+<!-- เชื่อมกับไฟล์เก็บรายชื่อ data.js -->
 <script src="data.js"></script>
 
 <script>
   const DEFAULT_IMG = 'logo.png';
 
-  window.onRealtimeUpdate = function() {
-    render();
-  };
-
-  async function render() {
-    const members = await fetchMembersData();
+  function render() {
+    const members = getMembersData();
     renderPublic(members);
-    if(document.getElementById('adminPage').classList.contains('active')) renderAdmin(members);
+    if(document.getElementById('adminPage').classList.contains('active')) {
+      renderAdmin(members);
+    }
   }
 
   function cardHTML(m) {
@@ -221,27 +220,27 @@
     const tbody = document.getElementById('adminTableBody');
     tbody.innerHTML = members.map(m => `
       <tr>
-        <td><input type="text" value="${m.name}" onchange="updateMemberData('${m.id}', 'name', this.value)"></td>
+        <td><input type="text" value="${m.name}" onchange="updateMemberData('${m.id}', 'name', this.value); render();"></td>
         <td>
-          <select onchange="updateMemberData('${m.id}', 'role', this.value)">
+          <select onchange="updateMemberData('${m.id}', 'role', this.value); render();">
             <option value="owner" ${m.role==='owner'?'selected':''}>Owner</option>
             <option value="leader" ${m.role==='leader'?'selected':''}>Leader</option>
             <option value="member" ${m.role==='member'?'selected':''}>Member</option>
           </select>
         </td>
-        <td><input type="text" value="${m.img||''}" onchange="updateMemberData('${m.id}', 'img', this.value)"></td>
-        <td><input type="text" value="${m.imgLink||''}" onchange="updateMemberData('${m.id}', 'imgLink', this.value)"></td>
-        <td><input type="text" value="${m.discordId||''}" onchange="updateMemberData('${m.id}', 'discordId', this.value)"></td>
+        <td><input type="text" value="${m.img||''}" onchange="updateMemberData('${m.id}', 'img', this.value); render();"></td>
+        <td><input type="text" value="${m.imgLink||''}" onchange="updateMemberData('${m.id}', 'imgLink', this.value); render();"></td>
+        <td><input type="text" value="${m.discordId||''}" onchange="updateMemberData('${m.id}', 'discordId', this.value); render();"></td>
         <td><button onclick="deleteMember('${m.id}')" style="background:#ff4d4d;color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;">ลบ</button></td>
       </tr>
     `).join('');
   }
 
-  async function addMember() {
+  function addMember() {
     const name = document.getElementById('newName').value.trim();
     if(!name) return alert('กรอกชื่อด้วยครับ');
     
-    await addMemberData({
+    addMemberData({
       name: name,
       role: document.getElementById('newRole').value,
       img: document.getElementById('newImg').value.trim(),
@@ -257,9 +256,9 @@
     render();
   }
 
-  async function deleteMember(id) {
+  function deleteMember(id) {
     if(confirm('ยืนยันลบรายชื่อนี้?')) {
-      await deleteMemberData(id);
+      deleteMemberData(id);
       render();
     }
   }
