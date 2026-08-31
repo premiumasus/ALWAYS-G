@@ -668,19 +668,10 @@
   ];
 
   // ===== DISCORD AVATAR HELPER =====
-  // ดึงรูปโปรไฟล์ Discord ผ่าน Lanyard API
-  async function fetchDiscordAvatar(discordId) {
+  // ใช้ Unavatar ดึงรูปจาก Discord User ID โดยตรง ไม่จำเป็นต้องจอยเซิร์ฟเวอร์
+  function fetchDiscordAvatar(discordId) {
     if (!discordId || !discordId.trim()) return null;
-    try {
-      const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId.trim()}`);
-      const json = await res.json();
-      if (json.success && json.data && json.data.discord_user && json.data.discord_user.avatar) {
-        const u = json.data.discord_user;
-        const ext = u.avatar.startsWith('a_') ? 'gif' : 'png';
-        return `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${ext}?size=256`;
-      }
-    } catch (e) {}
-    return null;
+    return `https://unavatar.io/discord/${discordId.trim()}`;
   }
 
   // คำนวณหารูปภาพที่ต้องแสดงผลจริงตามลำดับความสำคัญ (URL > Discord ID > logo.png)
@@ -689,8 +680,7 @@
       return avatarUrl.trim();
     }
     if (discordId && discordId.trim() !== '') {
-      const discAvatar = await fetchDiscordAvatar(discordId.trim());
-      if (discAvatar) return discAvatar;
+      return fetchDiscordAvatar(discordId);
     }
     return 'logo.png';
   }
