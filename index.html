@@ -343,7 +343,7 @@
   .discord-btn.disabled { background: #2a2a2a; border-color: #333; color: #777; opacity: 0.7; cursor: not-allowed; pointer-events: none; }
   .discord-btn.disabled svg { opacity: 0.5; }
 
-  /* ===== BACKGROUND MUSIC (admin-uploaded local file) ===== */
+  /* ===== BACKGROUND MUSIC ===== */
   .music-admin-box {
     display: flex;
     flex-wrap: wrap;
@@ -667,20 +667,25 @@
     { id: 9,  name: "Lee_T83",        role: "member",  avatarUrl: "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-5F7F5C01DA8D7A91084E1F7DFB4F1A46-Png/150/150/AvatarHeadshot/Webp/noFilter", photoLink: "https://www.roblox.com/th/users/5607614454/profile", discordId: "1173802866016792576" },
   ];
 
-  // ===== DISCORD AVATAR HELPER =====
-  // ใช้ Unavatar ดึงรูปจาก Discord User ID โดยตรง ไม่จำเป็นต้องจอยเซิร์ฟเวอร์
-  function fetchDiscordAvatar(discordId) {
-    if (!discordId || !discordId.trim()) return null;
-    return `https://unavatar.io/discord/${discordId.trim()}`;
+  // ===== DISCORD DEFAULT AVATAR HELPER =====
+  // คำนวณหา Default Avatar ของ Discord ดั้งเดิมโดยใช้ User ID
+  function getDiscordDefaultAvatar(discordId) {
+    if (!discordId || !discordId.trim()) return 'logo.png';
+    try {
+      const index = BigInt(discordId.trim()) >> 22n;
+      return `https://cdn.discordapp.com/embed/avatars/${index % 5n}.png`;
+    } catch (e) {
+      return 'logo.png';
+    }
   }
 
-  // คำนวณหารูปภาพที่ต้องแสดงผลจริงตามลำดับความสำคัญ (URL > Discord ID > logo.png)
+  // คำนวณหารูปภาพตามลำดับความสำคัญ (URL ตรง > Discord Default Avatar > logo.png)
   async function getResolvedAvatar(avatarUrl, discordId) {
     if (avatarUrl && avatarUrl.trim() !== '') {
       return avatarUrl.trim();
     }
     if (discordId && discordId.trim() !== '') {
-      return fetchDiscordAvatar(discordId);
+      return getDiscordDefaultAvatar(discordId);
     }
     return 'logo.png';
   }
@@ -804,7 +809,6 @@
       </tr>
     `).join('');
 
-    // อัปเดตรูปพรีวิวในตาราง
     membersData.forEach(m => updateAvatarPreview(m.id, m.avatarUrl, m.discordId));
   }
 
