@@ -78,11 +78,21 @@
     max-width: 55vw;
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,0.15);
-    margin-bottom: 18px;
+    margin-bottom: 8px;
     filter: drop-shadow(0 0 16px rgba(255,255,255,0.25));
     opacity: 0;
     transform: translateY(-16px);
     animation: dropIn 0.7s ease forwards, float 3.5s ease-in-out infinite 0.7s;
+  }
+  #hero .top-logo-text {
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: 3px;
+    font-size: 15px;
+    margin-bottom: 18px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards 0.4s;
   }
 
   #hero h1 {
@@ -555,6 +565,7 @@
 <!-- ================= HERO PAGE ================= -->
 <div id="hero">
   <img class="top-logo" src="Top.png" alt="NEVER TOWN logo">
+  <div class="top-logo-text">NEVER TOWN</div>
   <h1>WHY DO YOU ASK</h1>
   <div class="sub">ถามทำไม</div>
   <div class="logo-box">
@@ -892,7 +903,7 @@
       musicToggleBtn.textContent = '▶';
       musicToggleBtn.classList.remove('playing');
     } else {
-      musicToggleBtn.textContent = 'II';
+      musicToggleBtn.textContent = 'I I';
       musicToggleBtn.classList.add('playing');
     }
   }
