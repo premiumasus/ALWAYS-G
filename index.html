@@ -545,15 +545,13 @@
 </head>
 <body>
 
-<!-- Floating WA background effect -->
+<!-- Floating WAG background effect -->
 <div class="wa-bg" aria-hidden="true">
-  <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
-  <span>WA</span><span>WA</span><span>WA</span><span>WA</span>
+  <span>WAG</span><span>WAG</span><span>WAG</span><span>WAG</span>
+  <span>WAG</span><span>WAG</span><span>WAG</span><span>WAG</span>
 </div>
 
-<!-- Background music: plays a file the admin picked from their own computer
-     in the admin panel (see below). Stays in the DOM across page switches
-     so it keeps playing without interruption while browsing the site. -->
+<!-- Background music -->
 <audio id="bgAudio" loop style="display:none;"></audio>
 
 <!-- Floating music control widget -->
@@ -613,9 +611,7 @@
       <span class="music-status" id="musicStatus">ยังไม่ได้เลือกไฟล์เพลง</span>
     </div>
     <div class="admin-note" style="margin-top:-24px;">
-      เลือกไฟล์เพลงจากเครื่องตัวเอง (mp3/wav ฯลฯ) จะเล่นวนลูปทันทีในเบราว์เซอร์นี้ —
-      เนื่องจากไฟล์เว็บนี้ยังไม่มีฐานข้อมูล/เซิร์ฟเวอร์จริง ไฟล์เพลงจะใช้ได้แค่ในเครื่อง/เบราว์เซอร์ที่เลือกไฟล์เท่านั้น
-      และจะหายไปเมื่อรีเฟรชหน้า ผู้เข้าชมคนอื่นจะไม่ได้ยินเพลงนี้จนกว่าจะมีการอัปโหลดไฟล์ขึ้นเซิร์ฟเวอร์จริง
+      เลือกไฟล์เพลงจากเครื่องตัวเอง (mp3/wav ฯลฯ) จะเล่นวนลูปทันทีในเบราว์เซอร์นี้
     </div>
 
     <div class="admin-title" style="font-size:18px;">เพิ่มสมาชิกใหม่</div>
@@ -624,13 +620,13 @@
       <div class="avatar-preview-cell">
         <img id="avpreview-new" class="avatar-preview" src="logo.png"
              onerror="this.onerror=null;this.classList.add('broken');this.src='logo.png';">
-        <input type="text" id="newAvatar" placeholder="URL รูปโปรไฟล์ (เว้นว่างไว้ใช้โลโก้)"
-               oninput="updateAvatarPreview('new', this.value)">
+        <input type="text" id="newAvatar" placeholder="URL รูปโปรไฟล์ (ดึงจาก Discord อัตโนมัติถ้าว้าง)"
+               oninput="onFormAvatarChange('new')">
       </div>
       <input type="text" id="newPhotoLink" placeholder="ลิงก์เมื่อกดที่รูป (URL)">
       <div class="discord-id-group">
         <span class="prefix">https://discord.com/users/</span>
-        <input type="text" id="newDiscordId" placeholder="User ID">
+        <input type="text" id="newDiscordId" placeholder="User ID" oninput="onFormAvatarChange('new')">
       </div>
       <select id="newRole">
         <option value="owner">Owner</option>
@@ -671,6 +667,34 @@
     { id: 9,  name: "Lee_T83",        role: "member",  avatarUrl: "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-5F7F5C01DA8D7A91084E1F7DFB4F1A46-Png/150/150/AvatarHeadshot/Webp/noFilter", photoLink: "https://www.roblox.com/th/users/5607614454/profile", discordId: "1173802866016792576" },
   ];
 
+  // ===== DISCORD AVATAR HELPER =====
+  // ดึงรูปโปรไฟล์ Discord ผ่าน Lanyard API
+  async function fetchDiscordAvatar(discordId) {
+    if (!discordId || !discordId.trim()) return null;
+    try {
+      const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId.trim()}`);
+      const json = await res.json();
+      if (json.success && json.data && json.data.discord_user && json.data.discord_user.avatar) {
+        const u = json.data.discord_user;
+        const ext = u.avatar.startsWith('a_') ? 'gif' : 'png';
+        return `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${ext}?size=256`;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // คำนวณหารูปภาพที่ต้องแสดงผลจริงตามลำดับความสำคัญ (URL > Discord ID > logo.png)
+  async function getResolvedAvatar(avatarUrl, discordId) {
+    if (avatarUrl && avatarUrl.trim() !== '') {
+      return avatarUrl.trim();
+    }
+    if (discordId && discordId.trim() !== '') {
+      const discAvatar = await fetchDiscordAvatar(discordId.trim());
+      if (discAvatar) return discAvatar;
+    }
+    return 'logo.png';
+  }
+
   // ===== LOGO CLICK -> ADMIN TRIGGER =====
   let logoClickCount = 0;
   let logoClickTimer = null;
@@ -687,7 +711,7 @@
   const DISCORD_PREFIX = "https://discord.com/users/";
 
   // ===== CARD RENDERING (PUBLIC PAGE) =====
-  function cardHTML(m) {
+  async function renderCardHTML(m) {
     const roleClass = m.role + "-card";
     const tagText = m.role.toUpperCase();
     const discordIcon = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`;
@@ -697,8 +721,8 @@
       ? `<a class="discord-btn" href="${DISCORD_PREFIX}${escapeHTML(discordId)}" target="_blank" rel="noopener">${discordIcon}Discord</a>`
       : `<span class="discord-btn disabled">${discordIcon}ไม่มีลิ้ง</span>`;
 
-    const imgSrc = (m.avatarUrl && m.avatarUrl.trim() !== "") ? escapeHTML(m.avatarUrl.trim()) : "logo.png";
-    const avatarImg = `<img src="${imgSrc}" style="width:100%;height:100%;object-fit:contain;background:#fff;" onerror="this.onerror=null;this.src='logo.png';">`;
+    const finalImgSrc = await getResolvedAvatar(m.avatarUrl, m.discordId);
+    const avatarImg = `<img src="${escapeHTML(finalImgSrc)}" style="width:100%;height:100%;object-fit:contain;background:#fff;" onerror="this.onerror=null;this.src='logo.png';">`;
     const photoLink = (m.photoLink || "").trim();
     const avatarHTML = photoLink !== ""
       ? `<a class="avatar" href="${escapeHTML(photoLink)}" target="_blank" rel="noopener">${avatarImg}</a>`
@@ -727,17 +751,22 @@
     return d.innerHTML;
   }
 
-  function renderPublicPage() {
+  async function renderPublicPage() {
     const owners = membersData.filter(m => m.role === "owner");
     const leaders = membersData.filter(m => m.role === "leader");
     const members = membersData.filter(m => m.role === "member");
 
-    document.getElementById('ownerGrid').innerHTML =
-      owners.length ? owners.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Owner</div>';
-    document.getElementById('leaderGrid').innerHTML =
-      leaders.length ? leaders.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Leader</div>';
-    document.getElementById('memberGrid').innerHTML =
-      members.length ? members.map(cardHTML).join('') : '<div class="empty-msg">ยังไม่มี Member</div>';
+    document.getElementById('ownerGrid').innerHTML = owners.length 
+      ? (await Promise.all(owners.map(renderCardHTML))).join('') 
+      : '<div class="empty-msg">ยังไม่มี Owner</div>';
+      
+    document.getElementById('leaderGrid').innerHTML = leaders.length 
+      ? (await Promise.all(leaders.map(renderCardHTML))).join('') 
+      : '<div class="empty-msg">ยังไม่มี Leader</div>';
+      
+    document.getElementById('memberGrid').innerHTML = members.length 
+      ? (await Promise.all(members.map(renderCardHTML))).join('') 
+      : '<div class="empty-msg">ยังไม่มี Member</div>';
 
     staggerCards(document.getElementById('allPage'));
   }
@@ -749,11 +778,10 @@
       <tr>
         <td>
           <div class="avatar-preview-cell">
-            <img id="avpreview-${m.id}" class="avatar-preview"
-                 src="${(m.avatarUrl && m.avatarUrl.trim() !== '') ? escapeHTML(m.avatarUrl.trim()) : 'logo.png'}"
+            <img id="avpreview-${m.id}" class="avatar-preview" src="logo.png"
                  onerror="this.onerror=null;this.classList.add('broken');this.src='logo.png';">
-            <input type="text" value="${escapeHTML(m.avatarUrl || '')}" placeholder="URL รูปโปรไฟล์"
-                   oninput="updateAvatarPreview(${m.id}, this.value)"
+            <input type="text" id="avatarInput-${m.id}" value="${escapeHTML(m.avatarUrl || '')}" placeholder="URL รูปโปรไฟล์"
+                   oninput="onTableAvatarChange(${m.id})"
                    onchange="updateField(${m.id}, 'avatarUrl', this.value)">
           </div>
         </td>
@@ -775,7 +803,8 @@
         <td>
           <div class="discord-id-group">
             <span class="prefix">.../users/</span>
-            <input type="text" value="${escapeHTML(m.discordId || '')}" placeholder="User ID"
+            <input type="text" id="discordInput-${m.id}" value="${escapeHTML(m.discordId || '')}" placeholder="User ID"
+                   oninput="onTableAvatarChange(${m.id})"
                    onchange="updateField(${m.id}, 'discordId', this.value)">
           </div>
         </td>
@@ -784,13 +813,36 @@
         </td>
       </tr>
     `).join('');
+
+    // อัปเดตรูปพรีวิวในตาราง
+    membersData.forEach(m => updateAvatarPreview(m.id, m.avatarUrl, m.discordId));
   }
 
-  function updateAvatarPreview(id, url) {
+  async function updateAvatarPreview(id, url, discordId) {
     const img = document.getElementById('avpreview-' + id);
     if (!img) return;
     img.classList.remove('broken');
-    img.src = (url && url.trim() !== '') ? url.trim() : 'logo.png';
+    const finalSrc = await getResolvedAvatar(url, discordId);
+    img.src = finalSrc;
+  }
+
+  let avatarDebounceTimers = {};
+  function onTableAvatarChange(id) {
+    clearTimeout(avatarDebounceTimers[id]);
+    avatarDebounceTimers[id] = setTimeout(() => {
+      const url = document.getElementById(`avatarInput-${id}`).value;
+      const discordId = document.getElementById(`discordInput-${id}`).value;
+      updateAvatarPreview(id, url, discordId);
+    }, 400);
+  }
+
+  function onFormAvatarChange(id) {
+    clearTimeout(avatarDebounceTimers[id]);
+    avatarDebounceTimers[id] = setTimeout(() => {
+      const url = document.getElementById('newAvatar').value;
+      const discordId = document.getElementById('newDiscordId').value;
+      updateAvatarPreview(id, url, discordId);
+    }, 400);
   }
 
   function updateField(id, field, value) {
@@ -830,7 +882,7 @@
     photoLinkInput.value = '';
     discordIdInput.value = '';
     roleInput.value = 'member';
-    updateAvatarPreview('new', '');
+    updateAvatarPreview('new', '', '');
     renderAdminTable();
     renderPublicPage();
   }
@@ -871,11 +923,7 @@
   function enterAdmin() { showPage('adminPage'); }
   function exitAdmin() { showPage('hero'); }
 
-  // ===== BACKGROUND MUSIC (admin uploads a file from their own computer) =====
-  // Selecting a file is itself a user action, so the browser allows the
-  // resulting audio.play() call to include sound immediately — no autoplay
-  // workaround needed. The file only lives in this browser's memory, so it
-  // will not be heard by other visitors and resets on refresh (no server).
+  // ===== BACKGROUND MUSIC =====
   function handleMusicFile(event) {
     const file = event.target.files[0];
     const status = document.getElementById('musicStatus');
@@ -937,5 +985,4 @@
 
 </body>
 </html>
-</body>
-</html>
+
