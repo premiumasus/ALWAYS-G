@@ -73,6 +73,18 @@
   }
   #hero.fade-out { opacity: 0; }
 
+  #hero .top-logo {
+    width: 130px;
+    max-width: 55vw;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    margin-bottom: 18px;
+    filter: drop-shadow(0 0 16px rgba(255,255,255,0.25));
+    opacity: 0;
+    transform: translateY(-16px);
+    animation: dropIn 0.7s ease forwards, float 3.5s ease-in-out infinite 0.7s;
+  }
+
   #hero h1 {
     font-size: 60px;
     letter-spacing: 6px;
@@ -542,8 +554,9 @@
 
 <!-- ================= HERO PAGE ================= -->
 <div id="hero">
+  <img class="top-logo" src="top-logo.jpg" alt="NEVER TOWN logo">
   <h1>WHY DO YOU ASK</h1>
-  <div class="sub">ทำไม</div>
+  <div class="sub">ถามทำไม</div>
   <div class="logo-box">
     <img id="logoImg" src="logo.png" alt="WHY DO YOU ASK logo" onclick="logoClick()"
          style="max-width:220px;width:100%;background:#fff;border-radius:10px;padding:10px;">
