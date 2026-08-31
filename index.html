@@ -535,7 +535,7 @@
     width: 40px; height: 40px;
     border-radius: 8px;
     background: #fff;
-    object-fit: contain;
+    object-fit: cover;
     border: 2px solid #333;
     flex-shrink: 0;
     transition: border-color 0.2s ease;
@@ -610,9 +610,6 @@
       <input type="file" id="musicFileInput" accept="audio/*" onchange="handleMusicFile(event)">
       <span class="music-status" id="musicStatus">ยังไม่ได้เลือกไฟล์เพลง</span>
     </div>
-    <div class="admin-note" style="margin-top:-24px;">
-      เลือกไฟล์เพลงจากเครื่องตัวเอง (mp3/wav ฯลฯ) จะเล่นวนลูปทันทีในเบราว์เซอร์นี้
-    </div>
 
     <div class="admin-title" style="font-size:18px;">เพิ่มสมาชิกใหม่</div>
     <div class="admin-form">
@@ -667,25 +664,42 @@
     { id: 9,  name: "Lee_T83",        role: "member",  avatarUrl: "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-5F7F5C01DA8D7A91084E1F7DFB4F1A46-Png/150/150/AvatarHeadshot/Webp/noFilter", photoLink: "https://www.roblox.com/th/users/5607614454/profile", discordId: "1173802866016792576" },
   ];
 
-  // ===== DISCORD DEFAULT AVATAR HELPER =====
-  // คำนวณหา Default Avatar ของ Discord ดั้งเดิมโดยใช้ User ID
-  function getDiscordDefaultAvatar(discordId) {
-    if (!discordId || !discordId.trim()) return 'logo.png';
+  // ===== REAL DISCORD AVATAR FETCHER =====
+  // ระบบดึงรูปโปรไฟล์จริงผ่าน Lanyard API
+  async function fetchDiscordAvatar(discordId) {
+    if (!discordId || !discordId.trim()) return null;
+    const cleanId = discordId.trim();
     try {
-      const index = BigInt(discordId.trim()) >> 22n;
+      const res = await fetch(`https://api.lanyard.rest/v1/users/${cleanId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data && data.data.discord_user && data.data.discord_user.avatar) {
+          const avatarHash = data.data.discord_user.avatar;
+          const ext = avatarHash.startsWith('a_') ? 'gif' : 'png';
+          return `https://cdn.discordapp.com/avatars/${cleanId}/${avatarHash}.${ext}?size=256`;
+        }
+      }
+    } catch (e) {
+      console.warn('Cannot fetch from Lanyard, fallbacking:', e);
+    }
+    
+    // หากดึงรูปจริงไม่ได้ ให้ใช้ Default Avatar ของ Discord
+    try {
+      const index = BigInt(cleanId) >> 22n;
       return `https://cdn.discordapp.com/embed/avatars/${index % 5n}.png`;
     } catch (e) {
       return 'logo.png';
     }
   }
 
-  // คำนวณหารูปภาพตามลำดับความสำคัญ (URL ตรง > Discord Default Avatar > logo.png)
+  // คำนวณหารูปภาพตามลำดับความสำคัญ (URL ตรง > ดึงรูปโปรไฟล์จริง > logo.png)
   async function getResolvedAvatar(avatarUrl, discordId) {
     if (avatarUrl && avatarUrl.trim() !== '') {
       return avatarUrl.trim();
     }
     if (discordId && discordId.trim() !== '') {
-      return getDiscordDefaultAvatar(discordId);
+      const realAvatar = await fetchDiscordAvatar(discordId);
+      if (realAvatar) return realAvatar;
     }
     return 'logo.png';
   }
@@ -717,7 +731,7 @@
       : `<span class="discord-btn disabled">${discordIcon}ไม่มีลิ้ง</span>`;
 
     const finalImgSrc = await getResolvedAvatar(m.avatarUrl, m.discordId);
-    const avatarImg = `<img src="${escapeHTML(finalImgSrc)}" style="width:100%;height:100%;object-fit:contain;background:#fff;" onerror="this.onerror=null;this.src='logo.png';">`;
+    const avatarImg = `<img src="${escapeHTML(finalImgSrc)}" style="width:100%;height:100%;object-fit:cover;background:#fff;" onerror="this.onerror=null;this.src='logo.png';">`;
     const photoLink = (m.photoLink || "").trim();
     const avatarHTML = photoLink !== ""
       ? `<a class="avatar" href="${escapeHTML(photoLink)}" target="_blank" rel="noopener">${avatarImg}</a>`
