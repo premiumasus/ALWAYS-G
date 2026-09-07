@@ -3,436 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Key System - VICTORY</title>
+    <title>Get Key System</title>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Kanit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: #000000;
-            color: #ffffff;
-            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-            position: relative;
+            min-height: 100vh;
         }
 
-        /* Floating Circles Background Effect */
-        .circles {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 32px;
             width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .circles li {
-            position: absolute;
-            display: block;
-            list-style: none;
-            width: 20px;
-            height: 20px;
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid rgba(255, 0, 0, 0.5);
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-            animation: animate 25s linear infinite;
-            bottom: -150px;
-            border-radius: 50%;
-        }
-
-        .circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
-        .circles li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
-        .circles li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
-        .circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
-        .circles li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
-        .circles li:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
-        .circles li:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; }
-        .circles li:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; }
-        .circles li:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; }
-        .circles li:nth-child(10) { left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; }
-
-        @keyframes animate {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
-        }
-
-        /* Container Card */
-        .container {
-            position: relative;
-            z-index: 2;
-            background: rgba(15, 0, 0, 0.85);
-            border: 2px solid #ff0000;
-            box-shadow: 0 0 20px #ff0000;
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
+            max-width: 420px;
             text-align: center;
-            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
-        .title {
-            font-size: 2.2rem;
-            color: #ff0000;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px #ff0000;
-            cursor: pointer;
-            user-select: none;
+        h2 {
+            margin-bottom: 8px;
+            color: #38bdf8;
         }
 
-        .subtitle {
-            color: #ccc;
-            font-size: 0.9rem;
-            margin-bottom: 25px;
+        p.subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 24px;
         }
 
         .btn {
-            background-color: #ff0000;
-            color: #ffffff;
+            background: #2563eb;
+            color: white;
             border: none;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
             border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            transition: all 0.2s ease;
             width: 100%;
         }
 
-        .btn:hover {
-            background-color: #cc0000;
-            box-shadow: 0 0 20px #ff0000;
-            transform: scale(1.02);
+        .btn:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-1px);
         }
 
         .btn:disabled {
-            background-color: #444;
-            box-shadow: none;
+            background: #475569;
             cursor: not-allowed;
-            transform: none;
+            opacity: 0.6;
         }
 
-        .timer-display {
-            font-size: 1.8rem;
-            color: #ff3333;
-            margin: 20px 0;
-            font-weight: bold;
+        .status-box {
+            margin-top: 20px;
+            font-size: 15px;
+            color: #e2e8f0;
+            min-height: 24px;
         }
 
-        .key-box {
-            background: #000;
-            border: 1px solid #ff0000;
+        .key-display {
+            margin-top: 20px;
             padding: 12px;
-            border-radius: 5px;
-            word-break: break-all;
-            color: #00ffcc;
+            background: #0f172a;
+            border: 1px dashed #38bdf8;
+            border-radius: 8px;
+            color: #4ade80;
             font-family: monospace;
-            font-size: 0.9rem;
-            margin: 15px 0;
-            box-shadow: inset 0 0 5px rgba(255, 0, 0, 0.5);
+            font-size: 18px;
+            word-break: break-all;
+            display: none;
         }
 
-        .hidden { display: none; }
-
-        /* Modal / Admin Styling */
-        .modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: #111;
-            border: 2px solid #ff0000;
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            color: #fff;
-        }
-
-        input {
+        .progress-bar-container {
             width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            background: #000;
-            border: 1px solid #ff0000;
-            color: #fff;
-            border-radius: 5px;
+            background-color: #334155;
+            border-radius: 8px;
+            margin-top: 16px;
+            overflow: hidden;
+            height: 8px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.8rem;
-        }
-
-        th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th { background-color: #ff0000; color: #fff; }
-
-        .btn-danger {
-            background: #ff0000;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 3px;
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #38bdf8;
+            transition: width 0.2s ease;
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Animation -->
-    <ul class="circles">
-        <li></li><li></li><li></li><li></li><li></li>
-        <li></li><li></li><li></li><li></li><li></li>
-    </ul>
+<div class="card">
+    <h2>KEY SYSTEM</h2>
+    <p class="subtitle">กดปุ่มให้ครบ 15 ครั้งเพื่อรับคีย์</p>
 
-    <!-- Main Container -->
-    <div class="container">
-        <!-- คลิกที่คำว่า VICTORY 5 ครั้งเพื่อเข้าหน้า Admin -->
-        <div class="title" id="logoBtn" onclick="registerClick()">VICTORY</div>
-        <p class="subtitle">ระบบรับคีย์ปลดล็อกใช้งาน</p>
+    <button id="actionBtn" class="btn" onclick="handleClick()">คลิกเพื่อเริ่มต้น (0/15)</button>
 
-        <!-- Step 1: Join Discord -->
-        <div id="step1">
-            <p>กรุณากดปุ่มด้านล่างเพื่อเข้า Discord แล้วกลับมานับเวลาถอยหลัง</p>
-            <a href="https://discord.gg/vcrNKSm2bm" target="_blank" class="btn" onclick="startVerification()">เข้าสู่ Discord เพื่อรับคีย์</a>
-        </div>
-
-        <!-- Step 2: Waiting Countdown -->
-        <div id="step2" class="hidden">
-            <p>กำลังยืนยันตัวตน... กรุณารอสักครู่</p>
-            <div class="timer-display" id="timer">02:00</div>
-            <p style="font-size: 0.8rem; color: #888;">ห้ามปิดหน้าต่างนี้จนกว่าเวลาจะหมด</p>
-        </div>
-
-        <!-- Step 3: Show Key -->
-        <div id="step3" class="hidden">
-            <h3 style="color: #00ffcc;">ปลดล็อกสำเร็จ!</h3>
-            <p style="font-size: 0.8rem; margin-top: 5px;">คีย์ของคุณ (ความยาว 50 ตัวอักษร) อายุการใช้งาน 1 วัน:</p>
-            <div class="key-box" id="keyDisplay"></div>
-            <button class="btn" onclick="copyKey()">คัดลอกคีย์</button>
-        </div>
+    <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar"></div>
     </div>
 
-    <!-- Admin Modal -->
-    <div id="adminModal" class="modal hidden">
-        <div class="modal-content">
-            <h2 style="color: #ff0000; margin-bottom: 15px;">ระบบผู้ดูแลระบบ (Admin)</h2>
-            
-            <!-- Login Form -->
-            <div id="adminLogin">
-                <input type="password" id="adminPassword" placeholder="ใส่รหัสผ่านแอดมิน">
-                <button class="btn" onclick="checkAdminPassword()">เข้าสู่ระบบ</button>
-                <button class="btn" style="background:#333;" onclick="closeAdmin()">ยกเลิก</button>
-            </div>
+    <div id="statusText" class="status-box">พร้อมใช้งาน</div>
+    <div id="keyDisplay" class="key-display"></div>
+</div>
 
-            <!-- Dashboard -->
-            <div id="adminDashboard" class="hidden">
-                <h3>สร้างคีย์ใหม่</h3>
-                <input type="text" id="customKey" placeholder="กำหนดคีย์ (เว้นว่างไว้หากต้องการสุ่ม 50 ตัว)">
-                <input type="number" id="keyDuration" placeholder="จำนวนวันหมดอายุ ( default: 1 วัน )" value="1">
-                <button class="btn" onclick="adminCreateKey()">สร้างคีย์</button>
+<script>
+    // 1. ใส่ รายการ Key ทั้งหมดตรงนี้ (คีย์ที่ใช้อยู่ในระบบ)
+    const initialKeys = [
+        "KEY-AAAA-1111-XXXX",
+        "KEY-BBBB-2222-YYYY",
+        "KEY-CCCC-3333-ZZZZ",
+        "KEY-DDDD-4444-WWWW",
+        "KEY-EEEE-5555-VVVV"
+    ];
 
-                <h3 style="margin-top: 20px;">รายการ Log คีย์ในระบบ</h3>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>คีย์</th>
-                                <th>เวลาหมดอายุ</th>
-                                <th>การจัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="keyLogTable"></tbody>
-                    </table>
-                </div>
+    const TARGET_CLICKS = 15;
+    const WAIT_SECONDS = 60;
 
-                <button class="btn" style="background:#333; margin-top:20px;" onclick="closeAdmin()">ปิดหน้าต่าง</button>
-            </div>
-        </div>
-    </div>
+    let clickCount = 0;
+    let timer = null;
 
-    <script>
-        const DISCORD_URL = "https://discord.gg/vcrNKSm2bm";
-        const ADMIN_PASS = "admin1234"; // รหัสผ่านสำหรับเข้าหลังบ้าน Admin
-        let clickCount = 0;
-        let clickTimer;
-
-        // โหลดข้อมูลคีย์จาก localStorage
-        function getStoredKeys() {
-            return JSON.parse(localStorage.getItem('system_keys') || '[]');
+    // ดึงคีย์ที่เหลืออยู่จาก LocalStorage (ถ้าไม่มีให้ใช้ initialKeys)
+    function getAvailableKeys() {
+        const savedKeys = localStorage.getItem("available_keys");
+        if (savedKeys !== null) {
+            return JSON.parse(savedKeys);
         }
+        localStorage.setItem("available_keys", JSON.stringify(initialKeys));
+        return initialKeys;
+    }
 
-        function saveKeys(keys) {
-            localStorage.setItem('system_keys', JSON.stringify(keys));
+    // บันทึกคีย์ที่เหลือกลับลง LocalStorage
+    function saveAvailableKeys(keys) {
+        localStorage.setItem("available_keys", JSON.stringify(keys));
+    }
+
+    function handleClick() {
+        const btn = document.getElementById("actionBtn");
+        const status = document.getElementById("statusText");
+        const progressBar = document.getElementById("progressBar");
+
+        clickCount++;
+
+        // อัปเดตความคืบหน้า
+        btn.innerText = `คลิกเพื่อเริ่มต้น (${clickCount}/${TARGET_CLICKS})`;
+        const progressPercent = (clickCount / TARGET_CLICKS) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+
+        if (clickCount >= TARGET_CLICKS) {
+            btn.disabled = true;
+            startCountdown(WAIT_SECONDS);
         }
+    }
 
-        // ระบบตรวจจับการคลิก 5 ครั้งเพื่อเปิดแอดมิน
-        function registerClick() {
-            clickCount++;
-            clearTimeout(clickTimer);
-            if (clickCount >= 5) {
-                clickCount = 0;
-                document.getElementById('adminModal').classList.remove('hidden');
-            } else {
-                clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+    function startCountdown(seconds) {
+        let timeLeft = seconds;
+        const btn = document.getElementById("actionBtn");
+        const status = document.getElementById("statusText");
+
+        btn.innerText = `กรุณารอ...`;
+        status.innerText = `กำลังจัดเตรียมคีย์: เหลือเวลา ${timeLeft} วินาที`;
+
+        timer = setInterval(() => {
+            timeLeft--;
+            status.innerText = `กำลังจัดเตรียมคีย์: เหลือเวลา ${timeLeft} วินาที`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                generateKey();
             }
+        }, 1000);
+    }
+
+    function generateKey() {
+        const status = document.getElementById("statusText");
+        const keyDisplay = document.getElementById("keyDisplay");
+        const btn = document.getElementById("actionBtn");
+
+        let currentKeys = getAvailableKeys();
+
+        if (currentKeys.length === 0) {
+            status.innerText = "คีย์หมดแล้ว! กรุณาติดต่อแอดมิน";
+            btn.innerText = "คีย์หมด";
+            return;
         }
 
-        function closeAdmin() {
-            document.getElementById('adminModal').classList.add('hidden');
-            document.getElementById('adminLogin').classList.remove('hidden');
-            document.getElementById('adminDashboard').classList.add('hidden');
-            document.getElementById('adminPassword').value = '';
-        }
+        // สุ่มดัชนีคีย์
+        const randomIndex = Math.floor(Math.random() * currentKeys.length);
+        const selectedKey = currentKeys[randomIndex];
 
-        function checkAdminPassword() {
-            const pass = document.getElementById('adminPassword').value;
-            if (pass === ADMIN_PASS) {
-                document.getElementById('adminLogin').classList.add('hidden');
-                document.getElementById('adminDashboard').classList.remove('hidden');
-                renderKeyLogs();
-            } else {
-                alert("รหัสผ่านไม่ถูกต้อง!");
-            }
-        }
+        // ลบคีย์ที่ถูกสุ่มไปแล้วออกจากรายการ
+        currentKeys.splice(randomIndex, 1);
+        saveAvailableKeys(currentKeys);
 
-        // สุ่มสร้างคีย์ 50 ตัวอักษร
-        function generateRandomKey(length = 50) {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
+        // แสดงผล
+        status.innerText = "รับคีย์สำเร็จ!";
+        btn.innerText = "เสร็จสิ้น";
+        keyDisplay.innerText = selectedKey;
+        keyDisplay.style.display = "block";
+    }
+</script>
 
-        // เริ่มต้นกระบวนการนับเวลาหลังกลับจาก Discord
-        function startVerification() {
-            document.getElementById('step1').classList.add('hidden');
-            document.getElementById('step2').classList.remove('hidden');
-
-            let timeLeft = 120; // 2 นาที = 120 วินาที
-            const timerDisplay = document.getElementById('timer');
-
-            const countdown = setInterval(() => {
-                timeLeft--;
-                let minutes = Math.floor(timeLeft / 60);
-                let seconds = timeLeft % 60;
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-                
-                timerDisplay.textContent = `${minutes}:${seconds}`;
-
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    grantKey();
-                }
-            }, 1000);
-        }
-
-        // ออกคีย์ให้ผู้ใช้งาน
-        function grantKey() {
-            document.getElementById('step2').classList.add('hidden');
-            document.getElementById('step3').classList.remove('hidden');
-
-            const generatedKey = generateRandomKey(50);
-            const expireDate = new Date();
-            expireDate.setDate(expireDate.getDate() + 1); // หมดอายุใน 1 วัน
-
-            // บันทึกลง Log
-            const keys = getStoredKeys();
-            keys.push({
-                key: generatedKey,
-                expire: expireDate.toLocaleString('th-TH')
-            });
-            saveKeys(keys);
-
-            document.getElementById('keyDisplay').textContent = generatedKey;
-        }
-
-        function copyKey() {
-            const keyText = document.getElementById('keyDisplay').textContent;
-            navigator.clipboard.writeText(keyText).then(() => {
-                alert("คัดลอกคีย์เรียบร้อยแล้ว!");
-            });
-        }
-
-        // Admin: สร้างคีย์แบบกำหนดเอง
-        function adminCreateKey() {
-            const customKeyInput = document.getElementById('customKey').value.trim();
-            const daysInput = parseInt(document.getElementById('keyDuration').value) || 1;
-
-            const finalKey = customKeyInput !== "" ? customKeyInput : generateRandomKey(50);
-            const expireDate = new Date();
-            expireDate.setDate(expireDate.getDate() + daysInput);
-
-            const keys = getStoredKeys();
-            keys.push({
-                key: finalKey,
-                expire: expireDate.toLocaleString('th-TH')
-            });
-            saveKeys(keys);
-
-            document.getElementById('customKey').value = '';
-            renderKeyLogs();
-            alert("สร้างคีย์เรียบร้อยแล้ว!");
-        }
-
-        // Admin: ดึง Log คีย์มาแสดงในตาราง
-        function renderKeyLogs() {
-            const keys = getStoredKeys();
-            const tbody = document.getElementById('keyLogTable');
-            tbody.innerHTML = '';
-
-            keys.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="word-break: break-all;">${item.key}</td>
-                    <td>${item.expire}</td>
-                    <td><button class="btn-danger" onclick="deleteKey(${index})">ลบ</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Admin: ลบคีย์
-        function deleteKey(index) {
-            const keys = getStoredKeys();
-            keys.splice(index, 1);
-            saveKeys(keys);
-            renderKeyLogs();
-        }
-    </script>
 </body>
 </html>
 
